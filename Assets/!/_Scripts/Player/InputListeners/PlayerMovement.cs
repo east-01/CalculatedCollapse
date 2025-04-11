@@ -1,129 +1,230 @@
 using EMullen.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
-/// <summary>
-/// Ported from a previous project, the PlayerMovement input listener class is a rudimentary first
-///   person view character controller using WASD controls. The movement can be greatly improved.
-/// </summary>
 [RequireComponent(typeof(NetworkedAudioController))]
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour, IInputListener
 {
-
     private NetworkedAudioController audioController;
-
-    public Vector2 movementInput;
-    public bool sprintingInput;
-    public bool jumpInput;
-    private bool lastJump;
-    public bool JumpDown;
-
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f; // Speed of movement
-    public float sprintSpeed = 9f;
-    public float speedTransitionTime = 0.35f;
-    
-    [Header("Other")]
-    public float stepLength = 0.5f;
-
-    /// <summary>
-    /// The actual speed of the player.
-    /// </summary>
-    public float speed { get; private set; }
-    private float _targetSpeed;
-    private float targetSpeed { 
-        get => _targetSpeed;
-        set { 
-            targetSpeedChangeInitialSpeed = speed;
-            targetSpeedChangeTime = Time.time;
-            _targetSpeed = value;
-        }
-    }
-    /// <summary>
-    /// The initial speed before the target change
-    /// </summary>
-    private float targetSpeedChangeInitialSpeed;
-    private float targetSpeedChangeTime;
-
-    public float jumpPower = 40f;
-    public float jumpDecay = 0.65f;
-    public float jumpPowerRemaining { get; private set; }
-
     private CharacterController characterController;
 
-    private Vector3 lastSteppedPosition = Vector3.zero;
+    [Header("Camera")]
+    [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
+    [SerializeField] private Camera playerCamera; // Actual camera (used for zoom/FOV)
+    private float defaultFOV;
+
+    // Input values
+    private Vector2 movementInput;
+    private bool sprintingInput;
+    private bool jumpInput;
+    private bool crouchInput;
+    private bool zoomInput;
+
+    [Header("Movement Settings")]
+    public float walkSpeed = 3f;
+    public float sprintSpeed = 6f;
+    public float crouchSpeed = 1.5f;
+    public float gravity = 30f;
+
+    [Header("Crouch Settings")]
+    public float crouchHeight = 0.5f;
+    public float standHeight = 2f;
+    public float crouchTime = 0.25f;
+    private bool isCrouching = false;
+    private bool crouchAnimating = false;
+    private Vector3 crouchCenter = new Vector3(0, 0.5f, 0);
+    private Vector3 standCenter = new Vector3(0, 0, 0);
+
+    [Header("Jump Settings")]
+    public float jumpForce = 8f;
+    private float verticalVelocity;
+    private bool lastJump;
+
+    [Header("Zoom Settings")]
+    public float zoomFOV = 30f;
+    public float zoomTime = 0.3f;
+    private Coroutine zoomRoutine;
+
+    [Header("Camera Look")]
+    public float lookSpeedX = 2f;
+    public float lookSpeedY = 2f;
+    public float upperLookLimit = 80f;
+    public float lowerLookLimit = 80f;
+    private float rotationX = 0f;
+
+    [Header("Head Bob Settings")]
+    public float walkBobSpeed = 14f;
+    public float walkBobAmount = 0.05f;
+    public float sprintBobSpeed = 18f;
+    public float sprintBobAmount = 0.1f;
+    public float crouchBobSpeed = 8f;
+    public float crouchBobAmount = 0.025f;
+    private float defaultYPos;
+    private float bobTimer;
+
+    private Vector3 moveDirection;
+    private Vector2 currentInput;
 
     private void Awake()
     {
         audioController = GetComponent<NetworkedAudioController>();
-    }
-
-    private void Start()
-    {
         characterController = GetComponent<CharacterController>();
-        if (characterController == null)
-        {
-            Debug.LogWarning("CharacterController is missing on this GameObject. Adding one.");
-            characterController = gameObject.AddComponent<CharacterController>();
-        }
+
+        if (playerCamera == null)
+            playerCamera = GetComponentInChildren<Camera>();
+        if (cameraAttachPoint == null)
+            Debug.LogError("CameraAttachPoint must be assigned in the inspector!");
+
+        defaultFOV = playerCamera.fieldOfView;
+        defaultYPos = cameraAttachPoint.localPosition.y;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void Update()
     {
-        CharacterController cc = GetComponent<CharacterController>();
+        if (!Application.isFocused) return;
 
-        // Check if the jump button was just pressed
-        JumpDown = !lastJump && jumpInput && cc.isGrounded;
-        if(JumpDown)
-            jumpPowerRemaining = 13f;
+        HandleLook();
+        HandleMovementInput();
 
-        if(Time.time - targetSpeedChangeTime < speedTransitionTime) {
-            speed = Mathf.Lerp(targetSpeedChangeInitialSpeed, targetSpeed, (Time.time-targetSpeedChangeTime)/speedTransitionTime);
-        }
-
-        // Handle movement
-        // The target speed this tick
-        float tickTargetSpeed = sprintingInput ? sprintSpeed : moveSpeed;
-        if(tickTargetSpeed != targetSpeed)
-            targetSpeed = tickTargetSpeed;
-
-        Vector3 forward = movementInput.y * transform.forward * speed * Time.deltaTime;
-        Vector3 horizontal = movementInput.x * (Quaternion.Euler(0, 90, 0)*transform.forward) * speed * Time.deltaTime;
-        Vector3 vertical = (Physics.gravity + transform.up*jumpPowerRemaining) * Time.deltaTime;
-        characterController.Move(forward+horizontal+vertical);
-        
-        // Reduce jump power over time
-        if (jumpPowerRemaining > 0)
+        if (characterController.isGrounded)
         {
-            jumpPowerRemaining -= jumpDecay * Time.deltaTime;
-            if (jumpPowerRemaining < 0)
-                jumpPowerRemaining = 0;
+            verticalVelocity = -1f;
+            if (!lastJump && jumpInput)
+            {
+                verticalVelocity = jumpForce;
+            }
+
+            if (crouchInput && !crouchAnimating)
+            {
+                StartCoroutine(CrouchStand());
+            }
         }
+        else
+        {
+            verticalVelocity -= gravity * Time.deltaTime;
+        }
+
+        moveDirection.y = verticalVelocity;
+        characterController.Move(moveDirection * Time.deltaTime);
+
+        HandleZoom();
+        HandleHeadBob();
 
         lastJump = jumpInput;
-
-        // Play step sound        
-        // if(lastSteppedPosition == Vector3.zero) lastSteppedPosition = transform.position;
-        // if(Vector3.Distance(lastSteppedPosition, transform.position) >= stepLength && cc.isGrounded) {
-        //     lastSteppedPosition = transform.position;
-        //     audioController.PlaySound($"walk{Random.Range(1, 7)}");
-        // }
     }
 
-    public void InputEvent(InputAction.CallbackContext context)
+    private void HandleMovementInput()
     {
-        
+        float targetSpeed = isCrouching ? crouchSpeed : (sprintingInput ? sprintSpeed : walkSpeed);
+        currentInput = new Vector2(targetSpeed * movementInput.y, targetSpeed * movementInput.x);
+        moveDirection = (transform.forward * currentInput.x) + (transform.right * currentInput.y);
     }
+
+    private void HandleLook()
+    {
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        rotationX -= mouseDelta.y * lookSpeedY * Time.deltaTime;
+        rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
+
+        if (cameraAttachPoint != null)
+            cameraAttachPoint.localRotation = Quaternion.Euler(rotationX, 0, 0);
+
+        transform.Rotate(Vector3.up * mouseDelta.x * lookSpeedX * Time.deltaTime);
+    }
+
+    private void HandleZoom()
+    {
+        if (zoomInput && zoomRoutine == null)
+            zoomRoutine = StartCoroutine(ToggleZoom(true));
+        else if (!zoomInput && zoomRoutine == null)
+            zoomRoutine = StartCoroutine(ToggleZoom(false));
+    }
+
+    private IEnumerator ToggleZoom(bool zoomingIn)
+    {
+        float targetFOV = zoomingIn ? zoomFOV : defaultFOV;
+        float startFOV = playerCamera.fieldOfView;
+        float elapsed = 0f;
+
+        while (elapsed < zoomTime)
+        {
+            playerCamera.fieldOfView = Mathf.Lerp(startFOV, targetFOV, elapsed / zoomTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        playerCamera.fieldOfView = targetFOV;
+        zoomRoutine = null;
+    }
+
+    private IEnumerator CrouchStand()
+    {
+        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
+            yield break;
+
+        crouchAnimating = true;
+
+        float elapsed = 0f;
+        float startHeight = characterController.height;
+        float targetHeight = isCrouching ? standHeight : crouchHeight;
+        Vector3 startCenter = characterController.center;
+        Vector3 targetCenter = isCrouching ? standCenter : crouchCenter;
+
+        while (elapsed < crouchTime)
+        {
+            characterController.height = Mathf.Lerp(startHeight, targetHeight, elapsed / crouchTime);
+            characterController.center = Vector3.Lerp(startCenter, targetCenter, elapsed / crouchTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        characterController.height = targetHeight;
+        characterController.center = targetCenter;
+        isCrouching = !isCrouching;
+        crouchAnimating = false;
+    }
+
+    private void HandleHeadBob()
+    {
+        if (!characterController.isGrounded) return;
+        if (movementInput == Vector2.zero) return;
+
+        bobTimer += Time.deltaTime * (isCrouching ? crouchBobSpeed : sprintingInput ? sprintBobSpeed : walkBobSpeed);
+        float bobAmount = isCrouching ? crouchBobAmount : sprintingInput ? sprintBobAmount : walkBobAmount;
+
+        cameraAttachPoint.localPosition = new Vector3(
+            cameraAttachPoint.localPosition.x,
+            defaultYPos + Mathf.Sin(bobTimer) * bobAmount,
+            cameraAttachPoint.localPosition.z
+        );
+    }
+
+    public void InputEvent(InputAction.CallbackContext context) { }
 
     public void InputPoll(InputAction action)
     {
-        if(action.name == "Move") {
-            movementInput = action.ReadValue<Vector2>(); // Direction of movement input
-        } else if(action.name == "Sprint") {
-            sprintingInput = action.ReadValue<float>() > 0.1f;
-        } else if(action.name == "Jump") {
-            jumpInput = action.ReadValue<float>() > 0.1f;
-        } 
+        switch (action.name)
+        {
+            case "Move":
+                movementInput = action.ReadValue<Vector2>();
+                break;
+            case "Sprint":
+                sprintingInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Jump":
+                jumpInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Crouch":
+                crouchInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Zoom":
+                zoomInput = action.ReadValue<float>() > 0.1f;
+                break;
+        }
     }
-
 }
