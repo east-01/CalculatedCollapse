@@ -210,9 +210,8 @@ MonoBehaviour:
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
   - {fileID: 2852433896393889197}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 4476444807111019730}
+  - {fileID: 5466939117642560368}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -237,15 +236,15 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 1
+  <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 4564602454022995938
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
     Rotation: {x: 0, y: 0.7071068, z: 0, w: 0.70710677}
-    Scale: {x: 0, y: 0, z: 0}
-    IsValid: 0
+    Scale: {x: 2, y: 2, z: 2}
+    IsValid: 1
 --- !u!114 &2852433896393889197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,9 +300,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39aad44f00bd32a429d0829ea97ee6c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 1450876365604900663}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 1450876365604900663}
   uidReadout: 
   camera: {fileID: 1457892827986241266}
 --- !u!114 &4172409528695446178
@@ -331,6 +330,12 @@ MonoBehaviour:
   - actionName: Look
     listener: {fileID: 3254641920470416100}
     pollInput: 1
+  - actionName: Crouch
+    listener: {fileID: 8554514546108795878}
+    pollInput: 1
+  - actionName: Zoom
+    listener: {fileID: 8554514546108795878}
+    pollInput: 1
 --- !u!114 &8554514546108795878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,16 +348,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7266129a98bda4791676034efe6839, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementInput: {x: 0, y: 0}
-  sprintingInput: 0
-  jumpInput: 0
-  JumpDown: 0
-  moveSpeed: 5
+  cameraAttachPoint: {fileID: 4718917724592500}
+  playerCamera: {fileID: 1457892827986241266}
+  walkSpeed: 3
   sprintSpeed: 12
-  speedTransitionTime: 0.35
-  stepLength: 4.575
-  jumpPower: 80
-  jumpDecay: 10
+  crouchSpeed: 1.5
+  gravity: 30
+  crouchHeight: 0.5
+  standHeight: 2
+  crouchTime: 0.25
+  jumpForce: 8
+  zoomFOV: 30
+  zoomTime: 0.3
+  lookSpeedX: 2
+  lookSpeedY: 2
+  upperLookLimit: 80
+  lowerLookLimit: 80
+  walkBobSpeed: 14
+  walkBobAmount: 0.05
+  sprintBobSpeed: 18
+  sprintBobAmount: 0.1
+  crouchBobSpeed: 8
+  crouchBobAmount: 0.025
 --- !u!114 &6521357351895008424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,9 +394,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0537b9df814c09b44a43d9c6b5b1d7b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 1450876365604900663}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 1450876365604900663}
   _audioClips: []
 --- !u!143 &9139026534003978452
 CharacterController:
