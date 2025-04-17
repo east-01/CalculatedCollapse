@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=unity
 
 Assets/LargeAssets*
+generate_symlinks.bat
 
 ### Unity ###
 # This .gitignore file should be placed at the root of your Unity project directory

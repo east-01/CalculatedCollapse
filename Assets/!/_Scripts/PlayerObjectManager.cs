@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EMullen.Core;
 using EMullen.Networking;
+using EMullen.Networking.Lobby;
 using EMullen.PlayerMgmt;
 using EMullen.SceneMgmt;
 using FishNet;
@@ -28,73 +29,87 @@ public class PlayerObjectManager : NetworkBehaviour
     /// A client-side dictionary containing string uids and the attached playersObjects
     /// </summary>
     private Dictionary<string, Player> playersObjects = new();
-    public Player GetPlayer(string uid) => playersObjects[uid];
-
-    public delegate void PlayerConnectedDelegate(string uuid, Player player);
-    /// <summary>
-    /// This event is called when the Player object is attached to the PlayerObjectManager
-    /// </summary>
-    public event PlayerConnectedDelegate PlayerConnectedEvent;
+    public Player GetPlayer(string uid) => playersObjects.ContainsKey(uid) ? playersObjects[uid] : null;
 
     private void OnEnable() 
     {
-        SceneController.Instance.ClientNetworkedSceneEvent += SceneController_ClientNetworkedSceneEvent;
-
+        playersObjects.Values.ToList().ForEach(po => Destroy(po));
         playersObjects.Clear();
-        PlayerManager.Instance.LocalPlayers.Where(lp => lp != null).ToList().ForEach(lp => playersObjects.Add(lp.UID, null));
-    }
-
-    private void OnDisable() 
-    {
-        SceneController.Instance.ClientNetworkedSceneEvent -= SceneController_ClientNetworkedSceneEvent;
     }
 
     private void Update() 
     {
-        if(InstanceFinder.IsClientStarted) {
-            foreach(string uid in new List<string>(playersObjects.Keys)) {
-                if(playersObjects[uid] == null) {
-                    Player player = GetComponent<GameplayManager>().GameplayScene.GetRootGameObjects()
-                    .Where(go => go.GetComponent<Player>() != null)
-                    .Select(go => go.GetComponent<Player>())
-                    .FirstOrDefault(player => player.uid.Value == uid);
+        // If the network isn't active do nothing.
+        if(!InstanceFinder.IsServerStarted && !InstanceFinder.IsClientStarted)
+            return;
 
-                    // Failed to find player
-                    if(player == default)
-                        continue;
+        List<string> playersToConnect = new();
 
-                    playersObjects[uid] = player;
-                    PlayerConnectedEvent?.Invoke(uid, player);
-                    // The player won't recieve PlayerConnectedEvent, they subscribe to it after it's called.
-                    player.ConnectPlayer(uid, player);
-                }
+        if(InstanceFinder.IsServerStarted) {
+            // If the server is started, this PlayerObjectManager is responsible for spawning all
+            //   players in the lobby
+            GameplayManager gm = GetComponent<GameplayManager>();
+            if(gm.Lobby == null)
+                return;
+
+            playersToConnect = gm.Lobby.Players.ToList();
+        } else if(InstanceFinder.IsClientOnlyStarted) {
+            // If only the client is started, this PlayerObjectManager is responsible for
+            //   connecting LocalPlayers to their respective player GameObject.
+            playersToConnect = PlayerManager.Instance.LocalPlayers.Where(lp => lp != null).ToList().Select(lp => lp.UID).ToList();
+        }
+
+        foreach(string uid in playersToConnect) {
+
+            if(playersObjects.ContainsKey(uid))
+                continue;
+
+            Player player = GetComponent<GameplayManager>().GameplayScene.GetRootGameObjects()
+            .Where(go => go.GetComponent<Player>() != null)
+            .Select(go => go.GetComponent<Player>())
+            .FirstOrDefault(player => player.uid.Value == uid);
+
+            // Failed to find player, spawn one if we're the server
+            if((player == default || player == null) && InstanceFinder.IsServerStarted) {
+                if(InstanceFinder.IsServerStarted) {
+                    PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
+                    NetworkIdentifierData nid = pd.GetData<NetworkIdentifierData>();
+                    player = SpawnPlayer(nid.GetNetworkConnection(), uid);
+                } else
+                    continue; // Clients will wait for their player to be spawned by the server
             }
+
+            playersObjects.Add(uid, player);
+            // The player won't recieve PlayerConnectedEvent, they subscribe to it after it's called.
+            player.ConnectPlayer(uid, player);
         }
+
     }
 
-    private void SceneController_ClientNetworkedSceneEvent(NetworkConnection client, SceneLookupData scene, ClientNetworkedScene.Action action)
-    {
-        if(scene.Name == "GameplayScene") {
-            PlayerDataRegistry.Instance.GetAllData()
-            .Where(data => data.GetData<NetworkIdentifierData>().clientID == client.ClientId || data.GetData<NetworkIdentifierData>().clientID == -1)
-            .Select(data => data.GetUID())
-            .ToList()
-            .ForEach(uid => GetComponent<PlayerObjectManager>().SpawnPlayer(client, uid));
-        }
-    }
-
-    public void SpawnPlayer(NetworkConnection owner, string uid) {
+    /// <summary>
+    /// Spawn a player with a specific owner and uid, the player will be connected by the Update
+    ///   method.
+    /// Returns the spawned player object- only usable for the server that is hosting local
+    ///    clients to instantly make the connection, otherwise the player will be connected
+    ///    next update call.
+    /// </summary>
+    /// <param name="owner">The NetworkConnection owner of the player</param>
+    /// <param name="uid">The uid that will be assigned to the player</param>
+    /// <returns>The spawned Player object.</returns>
+    public Player SpawnPlayer(NetworkConnection owner, string uid) {
 
         if(!InstanceFinder.IsServerStarted) {
             ServerRpcSpawnPlayer(LocalConnection, uid);
-            return;
+            return null;
         }
 
         GameObject spawnedPlayer = Instantiate(playerPrefab);
         spawnedPlayer.transform.position = spawnPoint.transform.position;
-        spawnedPlayer.GetComponent<Player>().uid.Value = uid;
+        Player player = spawnedPlayer.GetComponent<Player>();
+        player.uid.Value = uid;
 
         InstanceFinder.ServerManager.Spawn(spawnedPlayer, owner, GetComponent<GameplayManager>().GameplayScene);
+        return player;
     }
     [ServerRpc(RequireOwnership = false)]
     private void ServerRpcSpawnPlayer(NetworkConnection owner, string uid) => SpawnPlayer(owner, uid);
