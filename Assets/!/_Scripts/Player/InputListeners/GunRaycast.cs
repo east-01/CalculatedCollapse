@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using EMullen.Core;
 using EMullen.PlayerMgmt;
 
-public class GunRaycast : MonoBehaviour
+[RequireComponent(typeof(Player))]
+public class GunRaycast : MonoBehaviour, IInputListener
 {
     [Header("Gun Settings")]
     public float range = 100f;
@@ -10,49 +12,74 @@ public class GunRaycast : MonoBehaviour
     public float fireRate = 0.2f;
 
     [Header("References")]
-    public ParticleSystem muzzleFlash;
     public FirstPersonCamera fpCamera;
-    public Player player;
-    private PlayerInput input; // Get input via PlayerInput component
 
+    private bool isFiring = false;
     private float nextTimeToFire = 0f;
+    private Player player;
 
-    void Start()
+    private void Awake()
     {
-        // Try to get input component from player at runtime
-        if (player != null)
-            input = player.GetComponent<PlayerInput>();
+        player = GetComponent<Player>();
+
+        if (fpCamera == null)
+            Debug.LogWarning("GunRaycast: Missing fpCamera reference.");
     }
 
-    void Update()
+    private void Update()
     {
-        if (player == null || fpCamera == null || input == null)
+        if (!Application.isFocused) return;
+
+        if (!isFiring || fpCamera == null || player == null)
             return;
 
-        // Check if the player owns this input (local), and if "Fire" is pressed
-        if (input.actions["Fire"].IsPressed() && Time.time >= nextTimeToFire)
+        if (Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + fireRate;
             Shoot();
         }
     }
 
+    public void InputEvent(InputAction.CallbackContext context)
+    {
+        // Not used, required for interface
+    }
+
+    public void InputPoll(InputAction action)
+    {
+        if (action.name == "Fire")
+        {
+            isFiring = action.ReadValue<float>() > 0.1f;
+        }
+    }
+
     private void Shoot()
     {
-        muzzleFlash?.Play();
+        Debug.Log("GunRaycast: Shoot() called");
 
         Vector3 rayOrigin = fpCamera.transform.position;
         Vector3 rayDirection = fpCamera.transform.forward;
 
+        Debug.DrawRay(rayOrigin, rayDirection * range, Color.red, 1f);
+
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range))
         {
-            Debug.Log("Hit object: " + hit.collider.name);
+            Debug.Log("GunRaycast: Hit " + hit.collider.name);
 
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+                Debug.Log($"GunRaycast: Applied {damage} damage to {hit.collider.name}");
             }
+            else
+            {
+                Debug.Log("GunRaycast: Hit object is not damageable.");
+            }
+        }
+        else
+        {
+            Debug.Log("GunRaycast: Raycast did not hit anything.");
         }
     }
 }
