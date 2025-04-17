@@ -30,8 +30,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     public float gravity = 30f;
 
     [Header("Crouch Settings")]
-    public float crouchHeight = 0.1f;
-    public float standHeight = 1f;
+    public float crouchHeight = -0.8f;
+    public float standHeight = 0f;
     public float crouchTime = 0.25f;
     private bool isCrouching = false;
     private bool crouchAnimating = false;
@@ -71,13 +71,29 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float currentLean = 0f;     // current Z rotation value
 
     [Header("Dash Settings")]
-    public int maxDashes = 1;           // replenished with power ups - TODO: tune later
-    public float dashForce = 20f;
+    public int maxDashes = 3;           // replenished with power ups - TODO: tune later
+    public float dashForce = 30f;
     public float dashDuration = 0.2f;
-    public float dashCooldown = 1f;     // prevent spam
+    public float dashCooldown = 1f;     // cooldown to prevent spam
     private int currentDashes;
     private bool isDashing = false;
     private float lastDashTime;
+
+    /* climbing system by Dave / GameDevelopment on YT */
+    [Header("References")]
+    public Transform orientation;
+    public Rigidbody rb;
+    public LayerMask whatIsLadder;
+
+    [Header("Climbing")]
+    public float climbSpeed;
+    public float detectionLength;
+    public float sphereCastRadius;
+    public float maxWallLookAngle;
+    private float wallLookAngle;
+    private RaycastHit frontWallHit;
+    private bool wallFront;
+    private bool climbing;
 
     private Vector3 moveDirection;
     private Vector2 currentInput;
@@ -106,31 +122,49 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         if (!Application.isFocused) return;
 
         HandleLook();
-        HandleMovementInput();
-
-        if (characterController.isGrounded)
-        {
-            verticalVelocity = -1f;
-            if (!lastJump && jumpInput)
-                verticalVelocity = jumpForce;
-
-            HandleCrouch();
-        }
-        else
-        {
-            verticalVelocity -= gravity * Time.deltaTime;
-        }
-
-        moveDirection.y = verticalVelocity;
-        characterController.Move(moveDirection * Time.deltaTime);
-
-        if (dashInput && !isDashing && Time.time >= lastDashTime + dashCooldown && currentDashes > 0)
-            StartCoroutine(DashRoutine());
-
+        HandleInput();    // taking inputs
+        HandleMovement(); // executing movement
+        HandleClimbing();
         HandleZoom();
         HandleHeadBob();
 
         lastJump = jumpInput;
+    }
+
+    private void HandleInput()
+    {
+        HandleMovementInput();      // WASD
+        HandleGravityAndJumping();  // jumping
+        HandleDashTrigger();        // dashing
+        HandleCrouch();             // crouching
+    }
+
+    private void HandleMovement()
+    {
+        if (!climbing)
+            moveDirection.y = verticalVelocity;
+        else
+            moveDirection.y = 0f; // climbing function will handle Y velocity
+
+        characterController.Move(moveDirection * Time.deltaTime);
+    }
+
+    private void HandleClimbing()
+    {
+        // ladder check
+        wallFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward, out frontWallHit, detectionLength, whatIsLadder);
+        wallLookAngle = Vector3.Angle(orientation.forward, -frontWallHit.normal); // player-to-wall angle within certain bounds to allow climbing
+
+        if (wallFront && Input.GetKey(KeyCode.W) && wallLookAngle < maxWallLookAngle)
+        {
+            if (!climbing) climbing = true; // start climbing
+            Vector3 climbDirection = (Vector3.up + orientation.forward * 0.2f).normalized; // forward nudge to "walk into" ladder
+            characterController.Move(climbDirection * climbSpeed * Time.deltaTime);
+        }
+        else if (climbing)
+        {
+            climbing = false;
+        }
     }
 
     private void HandleLook()
@@ -144,11 +178,43 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleCameraLean(); // apply X (pitch) + Z (lean)
     }
 
+    // tilts the camera based on horizontal input, only when shift is held (X + Z rotation)
+    private void HandleCameraLean()
+    {
+        float targetLean = 0f;
+
+        if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
+            targetLean -= movementInput.x * maxLeanAngle;
+
+        currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
+
+        if (cameraAttachPoint != null)
+        {
+            Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
+            cameraAttachPoint.localRotation = targetRotation;
+        }
+    }
+
     private void HandleMovementInput()
     {
         float targetSpeed = isCrouching ? crouchSpeed : (sprintingInput ? sprintSpeed : walkSpeed);
         currentInput = new Vector2(targetSpeed * movementInput.y, targetSpeed * movementInput.x);
         moveDirection = (transform.forward * currentInput.x) + (transform.right * currentInput.y);
+    }
+
+    private void HandleGravityAndJumping()
+    {
+        if (characterController.isGrounded)
+        {
+            verticalVelocity = -1f;
+            if (!lastJump && jumpInput)
+                verticalVelocity = jumpForce;
+        }
+        else // possibly climbing or jumping
+        {
+            if (!climbing)
+                verticalVelocity -= gravity * Time.deltaTime;
+        }
     }
 
     private void HandleCrouch()
@@ -161,7 +227,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         if (characterController.height != targetHeight)
             StartCoroutine(AdjustCrouch(targetHeight, targetCenter));
 
-        isCrouching = crouchInput; // reflects current input (hold-to-crouch)
+        isCrouching = crouchInput; // continuously reflects current input (hold-to-crouch)
     }
 
     // animate crouching animation
@@ -187,6 +253,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         characterController.height = targetHeight;
         characterController.center = targetCenter;
         crouchAnimating = false;
+    }
+
+    private void HandleDashTrigger()
+    {
+        if (dashInput && !isDashing && Time.time >= lastDashTime + dashCooldown && currentDashes > 0)
+            StartCoroutine(DashRoutine());
     }
 
     private void HandleZoom()
@@ -228,25 +300,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 defaultYPos + Mathf.Sin(bobTimer) * bobAmount,
                 cameraAttachPoint.localPosition.z
             );
-    }
-
-    // tilts the camera based on horizontal input, only when shift is held (X + Z rotation)
-    private void HandleCameraLean()
-    {
-        float targetLean = 0f;
-
-        if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
-        {
-            targetLean -= movementInput.x * maxLeanAngle;
-        }
-
-        currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
-
-        if (cameraAttachPoint != null)
-        {
-            Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
-            cameraAttachPoint.localRotation = targetRotation;
-        }
     }
 
     // TODO: powerups across the map will call this function
