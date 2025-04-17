@@ -340,6 +340,9 @@ MonoBehaviour:
   - actionName: Fire
     listener: {fileID: 8964458525228373197}
     pollInput: 1
+  - actionName: Dash
+    listener: {fileID: 8554514546108795878}
+    pollInput: 1
 --- !u!114 &8554514546108795878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,12 +361,12 @@ MonoBehaviour:
   sprintSpeed: 12
   crouchSpeed: 1.5
   gravity: 30
-  crouchHeight: 0.5
-  standHeight: 2
+  crouchHeight: 0.1
+  standHeight: 1
   crouchTime: 0.25
   jumpForce: 8
-  zoomFOV: 30
-  zoomTime: 0.3
+  zoomFOV: 40
+  zoomTime: 0.1
   lookSpeedX: 2
   lookSpeedY: 2
   upperLookLimit: 80
@@ -374,6 +377,12 @@ MonoBehaviour:
   sprintBobAmount: 0.1
   crouchBobSpeed: 8
   crouchBobAmount: 0.025
+  maxLeanAngle: 5
+  leanSpeed: 5
+  maxDashes: 1
+  dashForce: 20
+  dashDuration: 0.2
+  dashCooldown: 1
 --- !u!114 &6521357351895008424
 MonoBehaviour:
   m_ObjectHideFlags: 0
