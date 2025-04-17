@@ -3,6 +3,10 @@ using UnityEngine.InputSystem;
 using EMullen.Core;
 using EMullen.PlayerMgmt;
 
+/// <summary>
+/// Handles raycast-based shooting logic for a player. Uses PlayerInputManager's polling system
+/// to determine if the fire input is active. Applies damage to IDamageable targets.
+/// </summary>
 [RequireComponent(typeof(Player))]
 public class GunRaycast : MonoBehaviour, IInputListener
 {
@@ -14,11 +18,22 @@ public class GunRaycast : MonoBehaviour, IInputListener
     [Header("References")]
     public FirstPersonCamera fpCamera;
 
+    /// <summary>
+    /// Whether the player is holding the fire input.
+    /// </summary>
     private bool isFiring = false;
+
+    /// <summary>
+    /// The next time the player can fire based on fire rate.
+    /// </summary>
     private float nextTimeToFire = 0f;
+
+    /// <summary>
+    /// Reference to the player component on the object.
+    /// </summary>
     private Player player;
 
-    private void Awake()
+    private void Awake() 
     {
         player = GetComponent<Player>();
 
@@ -26,7 +41,7 @@ public class GunRaycast : MonoBehaviour, IInputListener
             Debug.LogWarning("GunRaycast: Missing fpCamera reference.");
     }
 
-    private void Update()
+    private void Update() 
     {
         if (!Application.isFocused) return;
 
@@ -40,20 +55,26 @@ public class GunRaycast : MonoBehaviour, IInputListener
         }
     }
 
-    public void InputEvent(InputAction.CallbackContext context)
-    {
-        // Not used, required for interface
-    }
-
-    public void InputPoll(InputAction action)
+    /// <summary>
+    /// Polls the Fire input using PlayerInputManager.
+    /// </summary>
+    /// <param name="action">InputAction from Input System</param>
+    public void InputPoll(InputAction action) 
     {
         if (action.name == "Fire")
-        {
             isFiring = action.ReadValue<float>() > 0.1f;
-        }
     }
 
-    private void Shoot()
+    /// <summary>
+    /// Required by IInputListener, but unused here.
+    /// </summary>
+    /// <param name="context">Callback context from Input System</param>
+    public void InputEvent(InputAction.CallbackContext context) { }
+
+    /// <summary>
+    /// Shoots a ray from the camera's position forward and applies damage if it hits an IDamageable.
+    /// </summary>
+    private void Shoot() 
     {
         Debug.Log("GunRaycast: Shoot() called");
 
@@ -62,22 +83,22 @@ public class GunRaycast : MonoBehaviour, IInputListener
 
         Debug.DrawRay(rayOrigin, rayDirection * range, Color.red, 1f);
 
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range))
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, range)) 
         {
             Debug.Log("GunRaycast: Hit " + hit.collider.name);
 
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
-            if (damageable != null)
+            if (damageable != null) 
             {
                 damageable.TakeDamage(damage);
                 Debug.Log($"GunRaycast: Applied {damage} damage to {hit.collider.name}");
             }
-            else
+            else 
             {
                 Debug.Log("GunRaycast: Hit object is not damageable.");
             }
         }
-        else
+        else 
         {
             Debug.Log("GunRaycast: Raycast did not hit anything.");
         }
