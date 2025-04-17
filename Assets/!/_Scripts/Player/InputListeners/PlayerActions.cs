@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// The player actions input listener class is a catch all for all extra player actions that don't
-///   group well. Currently holds the axe upgrade action.
+///   group well.
 /// </summary>
 [RequireComponent(typeof(Player))]
 [RequireComponent(typeof(NetworkedAudioController))]
