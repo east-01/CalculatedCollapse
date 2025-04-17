@@ -48,7 +48,6 @@ public class Player : NetworkBehaviour, IS3
             return;
 
         gameplayManager = singleton as GameplayManager;
-        gameplayManager.GetComponent<PlayerObjectManager>().PlayerConnectedEvent += PlayerObjectManager_PlayerConnectedEvent;
     }
 
     public void SingletonDeregistered(Type type, object singleton)
@@ -56,7 +55,6 @@ public class Player : NetworkBehaviour, IS3
         if(type != typeof(GameplayManager))
             return;
 
-        gameplayManager.GetComponent<PlayerObjectManager>().PlayerConnectedEvent -= PlayerObjectManager_PlayerConnectedEvent;
     }
 #endregion
 
@@ -83,23 +81,14 @@ public class Player : NetworkBehaviour, IS3
         }
     }
 
-    private void PlayerObjectManager_PlayerConnectedEvent(string uuid, Player player)
-    {
-        if(uuid != uid.Value)
-            return;
-
-        ConnectPlayer(uuid, player);
-    }
-
     public void ConnectPlayer(string uuid, Player player) 
     {
         int? idx = PlayerManager.Instance.GetLocalIndex(uuid);
-        if(!idx.HasValue) {
-            Debug.LogError("Failed to connect player locally, couldn't resolve index.");
-            return;
+        if(idx.HasValue) {
+           ConnectPlayer(PlayerManager.Instance.LocalPlayers[idx.Value]);
         }
 
-        ConnectPlayer(PlayerManager.Instance.LocalPlayers[idx.Value]);
+        UpdateActiveComponents(); 
     }
 
     public void ConnectPlayer(LocalPlayer localPlayer) 
@@ -111,8 +100,6 @@ public class Player : NetworkBehaviour, IS3
 
         this.localPlayer = localPlayer;
         GetComponent<PlayerInputManager>().ConnectPlayer(localPlayer.Input);       
-
-        UpdateActiveComponents(); 
     }
 
     /// <summary>
