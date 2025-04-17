@@ -10,17 +10,18 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private NetworkedAudioController audioController;
     private CharacterController characterController;
 
-    [Header("Camera")]
-    [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
-    [SerializeField] private Camera playerCamera; // Actual camera (used for zoom/FOV)
-    private float defaultFOV;
-
     // Input values
     private Vector2 movementInput;
     private bool sprintingInput;
     private bool jumpInput;
     private bool crouchInput;
     private bool zoomInput;
+    private bool dashInput;
+
+    [Header("Camera")]
+    [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
+    [SerializeField] private Camera playerCamera; // Actual camera (used for zoom/FOV)
+    private float defaultFOV;
 
     [Header("Movement Settings")]
     public float walkSpeed = 3f;
@@ -29,8 +30,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     public float gravity = 30f;
 
     [Header("Crouch Settings")]
-    public float crouchHeight = 0.5f;
-    public float standHeight = 2f;
+    public float crouchHeight = 0.1f;
+    public float standHeight = 1f;
     public float crouchTime = 0.25f;
     private bool isCrouching = false;
     private bool crouchAnimating = false;
@@ -43,8 +44,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private bool lastJump;
 
     [Header("Zoom Settings")]
-    public float zoomFOV = 30f;
-    public float zoomTime = 0.3f;
+    public float zoomFOV = 40f;
+    public float zoomTime = 0.1f;
     private Coroutine zoomRoutine;
 
     [Header("Camera Look")]
@@ -64,6 +65,20 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float defaultYPos;
     private float bobTimer;
 
+    [Header("Camera Lean Settings")]
+    public float maxLeanAngle = 5f;     // max lean angle
+    public float leanSpeed = 5f;        // how fast camera tilts
+    private float currentLean = 0f;     // current Z rotation value
+
+    [Header("Dash Settings")]
+    public int maxDashes = 1;           // replenished with power ups - TODO: tune later
+    public float dashForce = 20f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;     // prevent spam
+    private int currentDashes;
+    private bool isDashing = false;
+    private float lastDashTime;
+
     private Vector3 moveDirection;
     private Vector2 currentInput;
 
@@ -82,6 +97,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        currentDashes = maxDashes; // set initial dash count
     }
 
     private void Update()
@@ -95,14 +112,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         {
             verticalVelocity = -1f;
             if (!lastJump && jumpInput)
-            {
                 verticalVelocity = jumpForce;
-            }
 
-            if (crouchInput && !crouchAnimating)
-            {
-                StartCoroutine(CrouchStand());
-            }
+            HandleCrouch();
         }
         else
         {
@@ -112,10 +124,24 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         moveDirection.y = verticalVelocity;
         characterController.Move(moveDirection * Time.deltaTime);
 
+        if (dashInput && !isDashing && Time.time >= lastDashTime + dashCooldown && currentDashes > 0)
+            StartCoroutine(DashRoutine());
+
         HandleZoom();
         HandleHeadBob();
 
         lastJump = jumpInput;
+    }
+
+    private void HandleLook()
+    {
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        rotationX -= mouseDelta.y * lookSpeedY * Time.deltaTime;
+        rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
+
+        transform.Rotate(Vector3.up * mouseDelta.x * lookSpeedX * Time.deltaTime);
+
+        HandleCameraLean(); // apply X (pitch) + Z (lean)
     }
 
     private void HandleMovementInput()
@@ -125,16 +151,42 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         moveDirection = (transform.forward * currentInput.x) + (transform.right * currentInput.y);
     }
 
-    private void HandleLook()
+    private void HandleCrouch()
     {
-        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-        rotationX -= mouseDelta.y * lookSpeedY * Time.deltaTime;
-        rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
+        if (crouchAnimating) return;
 
-        if (cameraAttachPoint != null)
-            cameraAttachPoint.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        float targetHeight = isCrouching ? crouchHeight : standHeight;
+        Vector3 targetCenter = isCrouching ? crouchCenter : standCenter;
 
-        transform.Rotate(Vector3.up * mouseDelta.x * lookSpeedX * Time.deltaTime);
+        if (characterController.height != targetHeight)
+            StartCoroutine(AdjustCrouch(targetHeight, targetCenter));
+
+        isCrouching = crouchInput; // reflects current input (hold-to-crouch)
+    }
+
+    // animate crouching animation
+    private IEnumerator AdjustCrouch(float targetHeight, Vector3 targetCenter)
+    {
+        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
+            yield break;
+
+        crouchAnimating = true;
+
+        float elapsed = 0f;
+        float startHeight = characterController.height;
+        Vector3 startCenter = characterController.center;
+
+        while (elapsed < crouchTime)
+        {
+            characterController.height = Mathf.Lerp(startHeight, targetHeight, elapsed / crouchTime);
+            characterController.center = Vector3.Lerp(startCenter, targetCenter, elapsed / crouchTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        characterController.height = targetHeight;
+        characterController.center = targetCenter;
+        crouchAnimating = false;
     }
 
     private void HandleZoom()
@@ -162,33 +214,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         zoomRoutine = null;
     }
 
-    private IEnumerator CrouchStand()
-    {
-        if (isCrouching && Physics.Raycast(playerCamera.transform.position, Vector3.up, 1f))
-            yield break;
-
-        crouchAnimating = true;
-
-        float elapsed = 0f;
-        float startHeight = characterController.height;
-        float targetHeight = isCrouching ? standHeight : crouchHeight;
-        Vector3 startCenter = characterController.center;
-        Vector3 targetCenter = isCrouching ? standCenter : crouchCenter;
-
-        while (elapsed < crouchTime)
-        {
-            characterController.height = Mathf.Lerp(startHeight, targetHeight, elapsed / crouchTime);
-            characterController.center = Vector3.Lerp(startCenter, targetCenter, elapsed / crouchTime);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        characterController.height = targetHeight;
-        characterController.center = targetCenter;
-        isCrouching = !isCrouching;
-        crouchAnimating = false;
-    }
-
     private void HandleHeadBob()
     {
         if (!characterController.isGrounded) return;
@@ -197,11 +222,58 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         bobTimer += Time.deltaTime * (isCrouching ? crouchBobSpeed : sprintingInput ? sprintBobSpeed : walkBobSpeed);
         float bobAmount = isCrouching ? crouchBobAmount : sprintingInput ? sprintBobAmount : walkBobAmount;
 
-        cameraAttachPoint.localPosition = new Vector3(
-            cameraAttachPoint.localPosition.x,
-            defaultYPos + Mathf.Sin(bobTimer) * bobAmount,
-            cameraAttachPoint.localPosition.z
-        );
+        if (cameraAttachPoint != null)
+            cameraAttachPoint.localPosition = new Vector3(
+                cameraAttachPoint.localPosition.x,
+                defaultYPos + Mathf.Sin(bobTimer) * bobAmount,
+                cameraAttachPoint.localPosition.z
+            );
+    }
+
+    // tilts the camera based on horizontal input, only when shift is held (X + Z rotation)
+    private void HandleCameraLean()
+    {
+        float targetLean = 0f;
+
+        if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
+        {
+            targetLean -= movementInput.x * maxLeanAngle;
+        }
+
+        currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
+
+        if (cameraAttachPoint != null)
+        {
+            Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
+            cameraAttachPoint.localRotation = targetRotation;
+        }
+    }
+
+    // TODO: powerups across the map will call this function
+    public void RefillDash(int amount)
+    {
+        currentDashes = Mathf.Clamp(currentDashes + amount, 0, maxDashes);
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        isDashing = true;
+        currentDashes--;
+        lastDashTime = Time.time;
+
+        Vector3 dashDirection = moveDirection.normalized;
+        if (dashDirection == Vector3.zero) // handle case where dash received but no movement direction
+            dashDirection = transform.forward;
+
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            characterController.Move(dashDirection * dashForce * Time.deltaTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        isDashing = false;
     }
 
     public void InputEvent(InputAction.CallbackContext context) { }
@@ -224,6 +296,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 break;
             case "Zoom":
                 zoomInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Dash":
+                dashInput = action.ReadValue<float>() > 0.1f;
                 break;
         }
     }
