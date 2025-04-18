@@ -95,6 +95,14 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private bool wallFront;
     private bool climbing;
 
+    [Header("Sliding")]
+    public float slideSpeed;
+    public float slideDuration;
+    private bool isSliding = false;
+    private float slideTimer = 0f;
+    private Vector3 slideDirection;
+    public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
+
     private Vector3 moveDirection;
     private Vector2 currentInput;
 
@@ -127,7 +135,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleClimbing();
         HandleZoom();
         HandleHeadBob();
-
+        HandleSlide();
         lastJump = jumpInput;
     }
 
@@ -220,6 +228,14 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private void HandleCrouch()
     {
         if (crouchAnimating) return;
+        
+        // Check for a slide
+        if (crouchInput && sprintingInput && !isSliding && !isCrouching)
+        {
+            StartSlide();
+            return;
+        }
+
 
         float targetHeight = isCrouching ? crouchHeight : standHeight;
         Vector3 targetCenter = isCrouching ? crouchCenter : standCenter;
@@ -228,6 +244,34 @@ public class PlayerMovement : MonoBehaviour, IInputListener
             StartCoroutine(AdjustCrouch(targetHeight, targetCenter));
 
         isCrouching = crouchInput; // continuously reflects current input (hold-to-crouch)
+    }
+
+    // Method to handle the sliding
+    private void HandleSlide()
+    {
+        if (!isSliding)
+            return;
+
+        slideTimer += Time.deltaTime;
+        float factor = slideCurve.Evaluate(slideTimer / slideDuration);
+
+        Vector3 slideVelocity = slideDirection * slideSpeed * factor;
+        characterController.Move(slideVelocity * Time.deltaTime);
+
+        if (slideTimer >= slideDuration || slideVelocity.magnitude < 0.1f)
+        {
+            isSliding = false;
+        }
+    }
+    
+    private void StartSlide()
+    {
+        isSliding = true;
+        slideTimer = 0f;
+        slideDirection = transform.forward;
+
+        isCrouching = true;
+        StartCoroutine(AdjustCrouch(crouchHeight, crouchCenter));
     }
 
     // animate crouching animation
