@@ -192,7 +192,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "56f6af6550816da84b2c7952018ddd0a92f6cf30"
+      "hash": "ba74ca4097a1f3eb184426eaa9f43b6b6f71d69c"
     },
     "net.emullen.menucontroller": {
       "version": "https://github.com/east-01/net.emullen.menucontroller.git",
@@ -206,7 +206,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "4fc6858495d54d0f8ecd410e22f9d545643cec17"
+      "hash": "ac23ec6b319ba297d0aed0e3ac7d62dbe2a92591"
     },
     "net.emullen.playermgmt": {
       "version": "https://github.com/east-01/net.emullen.playermgmt.git",
