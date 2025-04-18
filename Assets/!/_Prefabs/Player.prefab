@@ -340,6 +340,9 @@ MonoBehaviour:
   - actionName: Fire
     listener: {fileID: 8964458525228373197}
     pollInput: 1
+  - actionName: Reload
+    listener: {fileID: 8964458525228373197}
+    pollInput: 1
 --- !u!114 &8554514546108795878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1083,6 +1086,35 @@ MonoBehaviour:
   range: 100
   damage: 25
   fireRate: 0.2
-  muzzleFlash: {fileID: 0}
+  maxAmmo: 10
   fpCamera: {fileID: 3254641920470416100}
-  player: {fileID: 4476444807111019730}
+--- !u!114 &5435534739106973416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7961798491337495123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4c77d24951819459937245c220ae9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputListeners: []
+--- !u!114 &6129830865004946178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7961798491337495123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39aad44f00bd32a429d0829ea97ee6c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 1450876365604900663}
+  _networkObjectCache: {fileID: 0}
+  uidReadout: 
+  camera: {fileID: 0}
