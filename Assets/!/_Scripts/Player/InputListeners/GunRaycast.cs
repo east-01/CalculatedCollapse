@@ -7,7 +7,6 @@ using EMullen.PlayerMgmt;
 /// Handles raycast-based shooting logic for a player. Uses PlayerInputManager's polling system
 /// to determine if the fire input is active. Applies damage to IDamageable targets.
 /// </summary>
-[RequireComponent(typeof(Player))]
 public class GunRaycast : MonoBehaviour, IInputListener
 {
     [Header("Gun Settings")]
