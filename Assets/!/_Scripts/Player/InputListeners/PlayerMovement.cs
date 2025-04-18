@@ -103,6 +103,19 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private Vector3 slideDirection;
     public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
 
+    [Header("Vaulting")]
+    public LayerMask vaultLayerMask;
+    public float vaultCheckDistance = 1.5f;
+    public float maxVaultHeight = 3f;
+    public float minVaultHeight = 1f;
+    public float vaultDuration = 0.3f;
+    private bool isVaulting = false;
+    private bool nearVaultable = false;
+    private Vector3 vaultTargetPosition;
+    // vaulting buffer for midair vaults and early jump input
+    public float vaultBufferTime = 0.2f;
+    private float lastJumpPressTime;
+
     private Vector3 moveDirection;
     private Vector2 currentInput;
 
@@ -136,6 +149,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleZoom();
         HandleHeadBob();
         HandleSlide();
+        CheckForVaultable();
         lastJump = jumpInput;
     }
 
@@ -212,16 +226,29 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
     private void HandleGravityAndJumping()
     {
+        bool wantsToVault = jumpInput || (Time.time - lastJumpPressTime <= vaultBufferTime);
+
         if (characterController.isGrounded)
         {
             verticalVelocity = -1f;
-            if (!lastJump && jumpInput)
-                verticalVelocity = jumpForce;
+            if (wantsToVault)
+            {
+                bool didVault = false;
+                if (!isVaulting)
+                    didVault = TryVault();
+
+                if (!didVault && !isVaulting)
+                    verticalVelocity = jumpForce;
+            }
         }
-        else // possibly climbing or jumping
+        else // in air
         {
             if (!climbing)
                 verticalVelocity -= gravity * Time.deltaTime;
+
+            // mid-air vault
+            if (wantsToVault && !isVaulting)
+                TryVault();
         }
     }
 
@@ -297,6 +324,59 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         characterController.height = targetHeight;
         characterController.center = targetCenter;
         crouchAnimating = false;
+    }
+
+    private void CheckForVaultable()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 direction = transform.forward;
+
+        RaycastHit hit;
+        nearVaultable = false;
+
+        if (Physics.Raycast(origin, direction, out hit, vaultCheckDistance, vaultLayerMask))
+        {
+            float obstacleTopY = hit.collider.bounds.max.y;
+            float playerFeetY = transform.position.y;
+            float relativeHeight = obstacleTopY - playerFeetY;
+
+            if (relativeHeight >= minVaultHeight && relativeHeight <= maxVaultHeight)
+            {
+                nearVaultable = true;
+                vaultTargetPosition = hit.point + transform.forward * 1.2f + Vector3.up * 0.5f;
+            }
+        }
+    }
+
+    private bool TryVault()
+    {
+        if (isVaulting || !nearVaultable)
+            return false;
+
+        // perform vault
+        StartCoroutine(PerformVault(vaultTargetPosition));
+        return true;
+    }
+
+    // handle the actual vault
+    private IEnumerator PerformVault(Vector3 targetPosition)
+    {
+        isVaulting = true;
+        characterController.enabled = false;
+
+        Vector3 start = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < vaultDuration)
+        {
+            transform.position = Vector3.Lerp(start, targetPosition, elapsed / vaultDuration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+        characterController.enabled = true;
+        isVaulting = false;
     }
 
     private void HandleDashTrigger()
@@ -387,6 +467,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 break;
             case "Jump":
                 jumpInput = action.ReadValue<float>() > 0.1f;
+
+                if (jumpInput)
+                    lastJumpPressTime = Time.time;
                 break;
             case "Crouch":
                 crouchInput = action.ReadValue<float>() > 0.1f;
