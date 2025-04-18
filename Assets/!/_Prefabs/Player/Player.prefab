@@ -213,6 +213,7 @@ MonoBehaviour:
   - {fileID: 2852433896393889197}
   - {fileID: 4476444807111019730}
   - {fileID: 5466939117642560368}
+  - {fileID: 1670328360711743367}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -237,7 +238,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 0
+  <PrefabId>k__BackingField: 1
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 3245580346695652904
   <SceneId>k__BackingField: 0
@@ -392,6 +393,32 @@ MonoBehaviour:
   detectionLength: 1.5
   sphereCastRadius: 0.25
   maxWallLookAngle: 30
+  slideSpeed: 15
+  slideDuration: 1
+  slideCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &6521357351895008424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -924,6 +951,23 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3679777046822884376, guid: b1c134145e21fdf4ea162172914c8d44, type: 3}
   m_PrefabInstance: {fileID: 6731980054674933323}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1670328360711743367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7961798491337495123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39aad44f00bd32a429d0829ea97ee6c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 3
+  _addedNetworkObject: {fileID: 1450876365604900663}
+  _networkObjectCache: {fileID: 1450876365604900663}
+  uidReadout: 
+  camera: {fileID: 0}
 --- !u!114 &6608357401127786976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -937,23 +981,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputListeners: []
---- !u!114 &1670328360711743367
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7961798491337495123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39aad44f00bd32a429d0829ea97ee6c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 255
-  _addedNetworkObject: {fileID: 1450876365604900663}
-  _networkObjectCache: {fileID: 0}
-  uidReadout: 
-  camera: {fileID: 0}
 --- !u!114 &8964458525228373197 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2379285684539069062, guid: b1c134145e21fdf4ea162172914c8d44, type: 3}
