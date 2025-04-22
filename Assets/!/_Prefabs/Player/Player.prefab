@@ -344,6 +344,12 @@ MonoBehaviour:
   - actionName: Dash
     listener: {fileID: 8554514546108795878}
     pollInput: 1
+  - actionName: Lean Left
+    listener: {fileID: 8554514546108795878}
+    pollInput: 1
+  - actionName: Lean Right
+    listener: {fileID: 8554514546108795878}
+    pollInput: 1
 --- !u!114 &8554514546108795878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -378,8 +384,9 @@ MonoBehaviour:
   sprintBobAmount: 0.1
   crouchBobSpeed: 8
   crouchBobAmount: 0.025
-  maxLeanAngle: 5
+  maxLeanAngle: 16
   leanSpeed: 5
+  leanOffsetDistance: 1
   maxDashes: 3
   dashForce: 30
   dashDuration: 0.2
@@ -426,6 +433,7 @@ MonoBehaviour:
   maxVaultHeight: 3
   minVaultHeight: 1
   vaultDuration: 0.3
+  vaultBufferTime: 0.2
 --- !u!114 &6521357351895008424
 MonoBehaviour:
   m_ObjectHideFlags: 0

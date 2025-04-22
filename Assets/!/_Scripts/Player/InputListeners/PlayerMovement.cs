@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private bool crouchInput;
     private bool zoomInput;
     private bool dashInput;
+    private bool leanLeftInput;
+    private bool leanRightInput;
 
     [Header("Camera")]
     [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
@@ -65,10 +67,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float defaultYPos;
     private float bobTimer;
 
-    [Header("Camera Lean Settings")]
-    public float maxLeanAngle = 5f;     // max lean angle
-    public float leanSpeed = 5f;        // how fast camera tilts
-    private float currentLean = 0f;     // current Z rotation value
+    [Header("Player Lean Settings")]
+    public float maxLeanAngle = 10f;
+    public float leanSpeed = 5f;
+    public float leanOffsetDistance = 1f; // how far the camera shifts when leaning
+    private Vector3 defaultCamLocalPos;
+    private float currentLean = 0f;
 
     [Header("Dash Settings")]
     public int maxDashes = 3;           // replenished with power ups - TODO: tune later
@@ -131,6 +135,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
         defaultFOV = playerCamera.fieldOfView;
         defaultYPos = cameraAttachPoint.localPosition.y;
+        defaultCamLocalPos = cameraAttachPoint.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -200,21 +205,41 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleCameraLean(); // apply X (pitch) + Z (lean)
     }
 
-    // tilts the camera based on horizontal input, only when shift is held (X + Z rotation)
+    // tilts and/or move the camera based on horizontal input: Q+E or lateral movement when shift is held
     private void HandleCameraLean()
     {
+        // when no input is polled, do nothing
         float targetLean = 0f;
+        float targetOffsetX = 0f;
 
-        if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
-            targetLean -= movementInput.x * maxLeanAngle;
+        // first, check for manual lean
+        if (leanLeftInput)
+        {
+            targetLean = maxLeanAngle;           // lean
+            targetOffsetX = -leanOffsetDistance; // shift
+        }
+        else if (leanRightInput)
+        {
+            targetLean = -maxLeanAngle;         // lean
+            targetOffsetX = leanOffsetDistance; // shift
+        }
+        // otherwise, apply auto lean when sprinting and moving to the side
+        else if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
+        {
+            targetLean -= movementInput.x * (maxLeanAngle / 4); // dampen
+            targetOffsetX = movementInput.x * leanOffsetDistance * 0.5f;
+        }
 
+        // smooth lean rotation
         currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
 
-        if (cameraAttachPoint != null)
-        {
-            Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
-            cameraAttachPoint.localRotation = targetRotation;
-        }
+        // smooth camera position offset
+        Vector3 targetPosition = defaultCamLocalPos + new Vector3(targetOffsetX, 0, 0);
+        cameraAttachPoint.localPosition = Vector3.Lerp(cameraAttachPoint.localPosition, targetPosition, Time.deltaTime * leanSpeed);
+
+        // apply tilt
+        Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
+        cameraAttachPoint.localRotation = targetRotation;
     }
 
     private void HandleMovementInput()
@@ -479,6 +504,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 break;
             case "Dash":
                 dashInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Lean Left":
+                leanLeftInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Lean Right":
+                leanRightInput = action.ReadValue<float>() > 0.1f;
                 break;
         }
     }
