@@ -4,6 +4,7 @@ using EMullen.PlayerMgmt;
 using EMullen.SceneMgmt;
 using FishNet;
 using FishNet.Component.Transforming;
+using FishNet.Connection;
 using FishNet.Managing.Scened;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
@@ -115,6 +116,33 @@ public class Player : NetworkBehaviour, IS3
         }
 
         GetComponent<PlayerMovement>().enabled = localPlayer != null;
+        GetComponent<CharacterController>().enabled = localPlayer != null;
         // GetComponent<ToolBelt>().enabled = localPlayer != null;
     }
+
+    /// <summary>
+    /// Set the player's position and rotation, requires disabling CharacterController for
+    ///   teleports.
+    /// </summary>
+    /// <param name="position">The target position.</param>
+    /// <param name="rotation">The target rotation.</param>
+    public void SetPositionAndRotation(Vector3 position, Quaternion rotation) 
+    {
+        CharacterController cc = GetComponent<CharacterController>();
+
+        cc.enabled = false;
+        gameObject.transform.SetPositionAndRotation(position, rotation);
+        cc.enabled = true;
+    }
+
+    /// <summary>
+    /// Teleport the player on the target. This is necessary as the target's CharacterController
+    ///   will block the teleport, even if the server demands it. This problem should be fixed
+    ///   once we move to server authoritative movement.
+    /// </summary>
+    /// <param name="connection">The target connection.</param>
+    /// <param name="position">The target position.</param>
+    /// <param name="rotation">The target rotation.</param>
+    [TargetRpc]
+    public void TargetRPCSetPositionAndRotation(NetworkConnection connection, Vector3 position, Quaternion rotation) => SetPositionAndRotation(position, rotation);
 }

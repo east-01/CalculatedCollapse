@@ -3,7 +3,7 @@
 
 Assets/DefaultPrefabObjects*
 Assets/LargeAssets*
-generate_symlinks.bat
+Assets/net.emullen*
 
 ### Unity ###
 # This .gitignore file should be placed at the root of your Unity project directory

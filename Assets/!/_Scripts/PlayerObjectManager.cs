@@ -43,6 +43,21 @@ public class PlayerObjectManager : NetworkBehaviour
         if(!InstanceFinder.IsServerStarted && !InstanceFinder.IsClientStarted)
             return;
 
+        List<string> playersToConnect = GetPlayersToConnect();
+        if(playersToConnect != null)
+            MakeConnections(playersToConnect);
+
+        if(InstanceFinder.IsServerStarted)
+            RemoveDisconnectedPlayers();
+    }
+
+    /// <summary>
+    /// Get the list of playere uids to connect, functionality differs between host/server and 
+    ///   clients.
+    /// </summary>
+    /// <returns>The list of player uids to connect, returns null if shouldn't be connecting.</returns>
+    private List<string> GetPlayersToConnect() 
+    {
         List<string> playersToConnect = new();
 
         if(InstanceFinder.IsServerStarted) {
@@ -50,15 +65,28 @@ public class PlayerObjectManager : NetworkBehaviour
             //   players in the lobby
             GameplayManager gm = GetComponent<GameplayManager>();
             if(gm.Lobby == null)
-                return;
+                return null;
 
             playersToConnect = gm.Lobby.Players.ToList();
         } else if(InstanceFinder.IsClientOnlyStarted) {
+            if(!LobbyManager.Instance.InLobby)
+                return null;
+
             // If only the client is started, this PlayerObjectManager is responsible for
             //   connecting LocalPlayers to their respective player GameObject.
             playersToConnect = PlayerManager.Instance.LocalPlayers.Where(lp => lp != null).ToList().Select(lp => lp.UID).ToList();
         }
 
+        return playersToConnect;
+    }
+
+    /// <summary>
+    /// Make player connections. If server, spawn networked player prefabs for players that don't
+    ///   have one yet; if client, make connections.
+    /// </summary>
+    /// <param name="playersToConnect">The players to connect</param>
+    private void MakeConnections(List<string> playersToConnect) 
+    {
         foreach(string uid in playersToConnect) {
 
             if(playersObjects.ContainsKey(uid))
@@ -70,7 +98,7 @@ public class PlayerObjectManager : NetworkBehaviour
             .FirstOrDefault(player => player.uid.Value == uid);
 
             // Failed to find player, spawn one if we're the server
-            if((player == default || player == null) && InstanceFinder.IsServerStarted) {
+            if(player == default || player == null) {
                 if(InstanceFinder.IsServerStarted) {
                     PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
                     NetworkIdentifierData nid = pd.GetData<NetworkIdentifierData>();
@@ -83,7 +111,6 @@ public class PlayerObjectManager : NetworkBehaviour
             // The player won't recieve PlayerConnectedEvent, they subscribe to it after it's called.
             player.ConnectPlayer(uid, player);
         }
-
     }
 
     /// <summary>
@@ -96,12 +123,10 @@ public class PlayerObjectManager : NetworkBehaviour
     /// <param name="owner">The NetworkConnection owner of the player</param>
     /// <param name="uid">The uid that will be assigned to the player</param>
     /// <returns>The spawned Player object.</returns>
-    public Player SpawnPlayer(NetworkConnection owner, string uid) {
+    private Player SpawnPlayer(NetworkConnection owner, string uid) {
 
-        if(!InstanceFinder.IsServerStarted) {
-            ServerRpcSpawnPlayer(LocalConnection, uid);
-            return null;
-        }
+        if(!InstanceFinder.IsServerStarted)
+            throw new InvalidOperationException("Can only spawn player on server.");
 
         GameObject spawnedPlayer = Instantiate(playerPrefab);
         spawnedPlayer.transform.position = spawnPoint.transform.position;
@@ -111,8 +136,30 @@ public class PlayerObjectManager : NetworkBehaviour
         InstanceFinder.ServerManager.Spawn(spawnedPlayer, owner, GetComponent<GameplayManager>().GameplayScene);
         return player;
     }
-    [ServerRpc(RequireOwnership = false)]
-    private void ServerRpcSpawnPlayer(NetworkConnection owner, string uid) => SpawnPlayer(owner, uid);
 
+    /// <summary>
+    /// Remove and despawn player objects that are no longer in the lobby.
+    /// </summary>
+    private void RemoveDisconnectedPlayers() 
+    {
+        if(!InstanceFinder.IsServerStarted)
+            throw new InvalidOperationException("Can only remove disconnected players on the server.");
+
+        // If the server is started, this PlayerObjectManager is responsible for spawning all
+        //   players in the lobby
+        GameplayManager gm = GetComponent<GameplayManager>();
+        if(gm.Lobby == null)
+            return;
+
+        IEnumerable<string> lobbyPlayers = gm.Lobby.Players;
+        IEnumerable<string> playersToRemove = playersObjects.Keys.Except(lobbyPlayers).ToList();
+
+        foreach(string uid in playersToRemove) {
+            Player playerObj = playersObjects[uid];
+            Despawn(playerObj.GetComponent<NetworkObject>());
+
+            playersObjects.Remove(uid);
+        }
+    }
 
 }

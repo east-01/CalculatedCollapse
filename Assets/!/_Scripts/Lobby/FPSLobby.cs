@@ -6,6 +6,7 @@ using EMullen.Core;
 using EMullen.Networking.Lobby;
 using EMullen.PlayerMgmt;
 using FishNet.Managing.Scened;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class FPSLobby : GameLobby 
@@ -19,6 +20,13 @@ public class FPSLobby : GameLobby
     {
         State = new StateWarmup(this);
         waitingForGM = null;
+    
+        LobbyManager.Instance.LobbyUpdatedEvent += LobbyManager_LobbyUpdatedEvent;
+    }
+
+    ~FPSLobby()
+    {
+        LobbyManager.Instance.LobbyUpdatedEvent -= LobbyManager_LobbyUpdatedEvent;
     }
 
     public override void Update() 
@@ -28,6 +36,8 @@ public class FPSLobby : GameLobby
         if(waitingForGM is not null)
             ConnectGameplayManager(waitingForGM);
     }
+
+    public override bool Joinable() => PlayerCount < 2;
 
     public override void ClaimedScene(SceneLookupData sceneLookupData)
     {
@@ -48,6 +58,24 @@ public class FPSLobby : GameLobby
         GameplayManager.Lobby = this;
         waitingForGM = null;
         Debug.LogWarning("TODO: We'll have to dispose of the gameplay manager, need to polish scene claiming/unclaiming.");
+    }
+
+    private void GiveWin(string uid) 
+    {
+        BLog.Highlight($"TODO: Give win to {uid}");
+    }
+
+    private void LobbyManager_LobbyUpdatedEvent(string lobbyID, LobbyData newData, LobbyUpdateReason reason)
+    {
+        if(lobbyID != ID)
+            return;
+
+        if(reason == LobbyUpdateReason.PLAYER_LEAVE) {
+            if(Players.Count == 1) {
+                GiveWin(Players[0]);
+            }
+            State = new StateWarmup(this);
+        }
     }
 
 }

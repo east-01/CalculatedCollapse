@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EMullen.Core;
+using EMullen.Networking;
 using EMullen.Networking.Lobby;
 using EMullen.PlayerMgmt;
+using FishNet;
 using FishNet.Connection;
 using UnityEngine;
 
@@ -22,12 +24,19 @@ public class StateInRound : LobbyState
                 // Debug.LogWarning("Can't spawn player player is null");
                 continue;
             }
-            CharacterController cc = player.GetComponent<CharacterController>();
-            Transform spawnPos = gm.GetSpawnPosition(uid);
+            
+            Transform pos = gm.GetSpawnPosition(uid);
 
-            cc.enabled = false;
-            player.gameObject.transform.position = spawnPos.position;
-            cc.enabled = true;
+            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
+            NetworkIdentifierData nid = pd.GetData<NetworkIdentifierData>();
+            NetworkConnection conn = nid.GetNetworkConnection();
+
+            if(InstanceFinder.ClientManager.Connection.IsValid && InstanceFinder.ClientManager.Connection == conn) {
+                // We don't need to send a TargetRPC to this player, they're the host
+                player.SetPositionAndRotation(pos.position, pos.rotation);
+            } else {
+                player.TargetRPCSetPositionAndRotation(conn, pos.position, pos.rotation);
+            }
         }
     }
 

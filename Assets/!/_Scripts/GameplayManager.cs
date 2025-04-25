@@ -50,6 +50,8 @@ public class GameplayManager : NetworkBehaviour
                 throw new InvalidOperationException("Can't assign new spawn position, one's not available. Ensure GameplayManager has enough spawnpositions for all possible players.");
             
             spawnPosAssignments.Add(uid, nextAvailable);
+
+            BLog.Highlight($"Assigned {uid} to spawn pos {nextAvailable}");
         }
         return spawnPoints[spawnPosAssignments[uid]];
     }
