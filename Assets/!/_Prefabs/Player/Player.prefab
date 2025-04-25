@@ -343,6 +343,7 @@ MonoBehaviour:
     pollInput: 1
   - actionName: Reload
     listener: {fileID: 8964458525228373197}
+    pollInput: 1
   - actionName: Dash
     listener: {fileID: 8554514546108795878}
     pollInput: 1
@@ -1009,7 +1010,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94b1ef74f0924f14a9b9497f2d3d9dc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD:Assets/!/_Prefabs/Player.prefab
   range: 100
   damage: 25
   fireRate: 0.2
@@ -1045,5 +1045,3 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   uidReadout: 
   camera: {fileID: 0}
-=======
->>>>>>> master:Assets/!/_Prefabs/Player/Player.prefab
