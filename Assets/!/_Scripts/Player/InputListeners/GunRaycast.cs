@@ -5,7 +5,7 @@ using EMullen.PlayerMgmt;
 
 /// <summary>
 /// Handles raycast-based shooting logic for a player. Uses PlayerInputManager's polling system
-/// to determine if the fire input is active. Applies damage to IDamageable targets.
+/// to determine if the fire or reload input is active. Applies damage to IDamageable targets.
 /// </summary>
 public class GunRaycast : MonoBehaviour, IInputListener
 {
@@ -13,6 +13,7 @@ public class GunRaycast : MonoBehaviour, IInputListener
     public float range = 100f;
     public float damage = 25f;
     public float fireRate = 0.2f;
+    public int maxAmmo = 10;
 
     [Header("References")]
     public FirstPersonCamera fpCamera;
@@ -32,9 +33,15 @@ public class GunRaycast : MonoBehaviour, IInputListener
     /// </summary>
     private Player player;
 
+    /// <summary>
+    /// Current number of bullets in the magazine.
+    /// </summary>
+    private int currentAmmo;
+
     private void Awake() 
     {
         player = GetComponent<Player>();
+        currentAmmo = maxAmmo;
 
         if (fpCamera == null)
             Debug.LogWarning("GunRaycast: Missing fpCamera reference.");
@@ -44,7 +51,7 @@ public class GunRaycast : MonoBehaviour, IInputListener
     {
         if (!Application.isFocused) return;
 
-        if (!isFiring || fpCamera == null || player == null)
+        if (!isFiring || fpCamera == null || player == null || currentAmmo <= 0)
             return;
 
         if (Time.time >= nextTimeToFire)
@@ -55,13 +62,21 @@ public class GunRaycast : MonoBehaviour, IInputListener
     }
 
     /// <summary>
-    /// Polls the Fire input using PlayerInputManager.
+    /// Polls the Fire and Reload input using PlayerInputManager.
     /// </summary>
     /// <param name="action">InputAction from Input System</param>
     public void InputPoll(InputAction action) 
     {
-        if (action.name == "Fire")
-            isFiring = action.ReadValue<float>() > 0.1f;
+        switch (action.name)
+        {
+            case "Fire":
+                isFiring = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Reload":
+                if (action.triggered)
+                    Reload();
+                break;
+        }
     }
 
     /// <summary>
@@ -72,10 +87,19 @@ public class GunRaycast : MonoBehaviour, IInputListener
 
     /// <summary>
     /// Shoots a ray from the camera's position forward and applies damage if it hits an IDamageable.
+    /// Also reduces ammo count.
     /// </summary>
     private void Shoot() 
     {
+        if (currentAmmo <= 0)
+        {
+            Debug.Log("GunRaycast: Out of ammo!");
+            return;
+        }
+
         Debug.Log("GunRaycast: Shoot() called");
+        currentAmmo--;
+        Debug.Log($"GunRaycast: Ammo left = {currentAmmo}");
 
         Vector3 rayOrigin = fpCamera.transform.position;
         Vector3 rayDirection = fpCamera.transform.forward;
@@ -101,5 +125,15 @@ public class GunRaycast : MonoBehaviour, IInputListener
         {
             Debug.Log("GunRaycast: Raycast did not hit anything.");
         }
+    }
+
+    /// <summary>
+    /// Reloads the gun to full magazine capacity.
+    /// </summary>
+    private void Reload()
+    {
+        currentAmmo = maxAmmo;
+        Debug.Log("GunRaycast: Reloaded. Ammo = " + currentAmmo);
+        Debug.Log("🔁 Reload pressed");
     }
 }
