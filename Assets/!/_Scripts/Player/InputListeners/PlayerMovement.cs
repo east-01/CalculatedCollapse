@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private bool crouchInput;
     private bool zoomInput;
     private bool dashInput;
+    private bool leanLeftInput;
+    private bool leanRightInput;
 
     [Header("Camera")]
     [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
@@ -65,10 +67,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float defaultYPos;
     private float bobTimer;
 
-    [Header("Camera Lean Settings")]
-    public float maxLeanAngle = 5f;     // max lean angle
-    public float leanSpeed = 5f;        // how fast camera tilts
-    private float currentLean = 0f;     // current Z rotation value
+    [Header("Player Lean Settings")]
+    public float maxLeanAngle = 10f;
+    public float leanSpeed = 5f;
+    public float leanOffsetDistance = 1f; // how far the camera shifts when leaning
+    private Vector3 defaultCamLocalPos;
+    private float currentLean = 0f;
 
     [Header("Dash Settings")]
     public int maxDashes = 3;           // replenished with power ups - TODO: tune later
@@ -103,6 +107,19 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private Vector3 slideDirection;
     public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
 
+    [Header("Vaulting")]
+    public LayerMask vaultLayerMask;
+    public float vaultCheckDistance = 1.5f;
+    public float maxVaultHeight = 3f;
+    public float minVaultHeight = 1f;
+    public float vaultDuration = 0.3f;
+    private bool isVaulting = false;
+    private bool nearVaultable = false;
+    private Vector3 vaultTargetPosition;
+    // vaulting buffer for midair vaults and early jump input
+    public float vaultBufferTime = 0.2f;
+    private float lastJumpPressTime;
+
     private Vector3 moveDirection;
     private Vector2 currentInput;
 
@@ -118,6 +135,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
         defaultFOV = playerCamera.fieldOfView;
         defaultYPos = cameraAttachPoint.localPosition.y;
+        defaultCamLocalPos = cameraAttachPoint.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -136,6 +154,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleZoom();
         HandleHeadBob();
         HandleSlide();
+        CheckForVaultable();
         lastJump = jumpInput;
     }
 
@@ -186,21 +205,41 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleCameraLean(); // apply X (pitch) + Z (lean)
     }
 
-    // tilts the camera based on horizontal input, only when shift is held (X + Z rotation)
+    // tilts and/or move the camera based on horizontal input: Q+E or lateral movement when shift is held
     private void HandleCameraLean()
     {
+        // when no input is polled, do nothing
         float targetLean = 0f;
+        float targetOffsetX = 0f;
 
-        if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
-            targetLean -= movementInput.x * maxLeanAngle;
+        // first, check for manual lean
+        if (leanLeftInput)
+        {
+            targetLean = maxLeanAngle;           // lean
+            targetOffsetX = -leanOffsetDistance; // shift
+        }
+        else if (leanRightInput)
+        {
+            targetLean = -maxLeanAngle;         // lean
+            targetOffsetX = leanOffsetDistance; // shift
+        }
+        // otherwise, apply auto lean when sprinting and moving to the side
+        else if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
+        {
+            targetLean -= movementInput.x * (maxLeanAngle / 4); // dampen
+            targetOffsetX = movementInput.x * leanOffsetDistance * 0.5f;
+        }
 
+        // smooth lean rotation
         currentLean = Mathf.Lerp(currentLean, targetLean, Time.deltaTime * leanSpeed);
 
-        if (cameraAttachPoint != null)
-        {
-            Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
-            cameraAttachPoint.localRotation = targetRotation;
-        }
+        // smooth camera position offset
+        Vector3 targetPosition = defaultCamLocalPos + new Vector3(targetOffsetX, 0, 0);
+        cameraAttachPoint.localPosition = Vector3.Lerp(cameraAttachPoint.localPosition, targetPosition, Time.deltaTime * leanSpeed);
+
+        // apply tilt
+        Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
+        cameraAttachPoint.localRotation = targetRotation;
     }
 
     private void HandleMovementInput()
@@ -212,16 +251,29 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
     private void HandleGravityAndJumping()
     {
+        bool wantsToVault = jumpInput || (Time.time - lastJumpPressTime <= vaultBufferTime);
+
         if (characterController.isGrounded)
         {
             verticalVelocity = -1f;
-            if (!lastJump && jumpInput)
-                verticalVelocity = jumpForce;
+            if (wantsToVault)
+            {
+                bool didVault = false;
+                if (!isVaulting)
+                    didVault = TryVault();
+
+                if (!didVault && !isVaulting)
+                    verticalVelocity = jumpForce;
+            }
         }
-        else // possibly climbing or jumping
+        else // in air
         {
             if (!climbing)
                 verticalVelocity -= gravity * Time.deltaTime;
+
+            // mid-air vault
+            if (wantsToVault && !isVaulting)
+                TryVault();
         }
     }
 
@@ -297,6 +349,59 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         characterController.height = targetHeight;
         characterController.center = targetCenter;
         crouchAnimating = false;
+    }
+
+    private void CheckForVaultable()
+    {
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 direction = transform.forward;
+
+        RaycastHit hit;
+        nearVaultable = false;
+
+        if (Physics.Raycast(origin, direction, out hit, vaultCheckDistance, vaultLayerMask))
+        {
+            float obstacleTopY = hit.collider.bounds.max.y;
+            float playerFeetY = transform.position.y;
+            float relativeHeight = obstacleTopY - playerFeetY;
+
+            if (relativeHeight >= minVaultHeight && relativeHeight <= maxVaultHeight)
+            {
+                nearVaultable = true;
+                vaultTargetPosition = hit.point + transform.forward * 1.2f + Vector3.up * 0.5f;
+            }
+        }
+    }
+
+    private bool TryVault()
+    {
+        if (isVaulting || !nearVaultable)
+            return false;
+
+        // perform vault
+        StartCoroutine(PerformVault(vaultTargetPosition));
+        return true;
+    }
+
+    // handle the actual vault
+    private IEnumerator PerformVault(Vector3 targetPosition)
+    {
+        isVaulting = true;
+        characterController.enabled = false;
+
+        Vector3 start = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < vaultDuration)
+        {
+            transform.position = Vector3.Lerp(start, targetPosition, elapsed / vaultDuration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+        characterController.enabled = true;
+        isVaulting = false;
     }
 
     private void HandleDashTrigger()
@@ -387,6 +492,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 break;
             case "Jump":
                 jumpInput = action.ReadValue<float>() > 0.1f;
+
+                if (jumpInput)
+                    lastJumpPressTime = Time.time;
                 break;
             case "Crouch":
                 crouchInput = action.ReadValue<float>() > 0.1f;
@@ -396,6 +504,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 break;
             case "Dash":
                 dashInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Lean Left":
+                leanLeftInput = action.ReadValue<float>() > 0.1f;
+                break;
+            case "Lean Right":
+                leanRightInput = action.ReadValue<float>() > 0.1f;
                 break;
         }
     }
