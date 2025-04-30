@@ -185,7 +185,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "032de1e3a229cfc5719d74c4f3828ca11b7ba5b3"
+      "hash": "421a6795ceacf9ac4b9405260e42ee75cddf5e4d"
     },
     "net.emullen.core": {
       "version": "https://github.com/east-01/net.emullen.core.git",
@@ -206,21 +206,21 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "ac23ec6b319ba297d0aed0e3ac7d62dbe2a92591"
+      "hash": "47c27153b86802814e451bcf01a66fcf07df9bbb"
     },
     "net.emullen.playermgmt": {
       "version": "https://github.com/east-01/net.emullen.playermgmt.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "04d282556f58489b7dd4420ef8be6cf6f00281b0"
+      "hash": "c1f0d0a3390045789e8e48c87e480a1c294412d5"
     },
     "net.emullen.scenemgmt": {
       "version": "https://github.com/east-01/net.emullen.scenemgmt.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "e2269948322172640ab6ba169abca289f9475ad4"
+      "hash": "88d85159be8d0be4f8e9fa054a3210119e1ee5c8"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
