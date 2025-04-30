@@ -536,6 +536,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 136994670700002651, guid: d0ebc113f4c4a644599786fd553e371e, type: 3}
+      propertyPath: lobbySceneName
+      value: LobbyScene
+      objectReference: {fileID: 0}
+    - target: {fileID: 136994670700002651, guid: d0ebc113f4c4a644599786fd553e371e, type: 3}
+      propertyPath: defaultSceneName
+      value: LobbyScene
+      objectReference: {fileID: 0}
     - target: {fileID: 2846885559932191762, guid: d0ebc113f4c4a644599786fd553e371e, type: 3}
       propertyPath: m_RootOrder
       value: 8

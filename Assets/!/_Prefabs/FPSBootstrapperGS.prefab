@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2099810713927871676, guid: b15392987b68356468808aab66f933e2, type: 3}
       propertyPath: sequence.targetScenes.Array.data[0]
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2434865953866603538, guid: b15392987b68356468808aab66f933e2, type: 3}
       propertyPath: m_Name

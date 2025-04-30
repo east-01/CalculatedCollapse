@@ -81,7 +81,7 @@ public class PlayerHUDMenuController : MenuController
             healthText.gameObject.SetActive(true);
             gunText.gameObject.SetActive(true);
             scoreboard.SetActive(true);
-        } else if(stateString == typeof(StateTransitionRounds).ToString()) {
+        } else if(stateString == typeof(StatePostRound).ToString()) {
             healthText.gameObject.SetActive(false);
             gunText.gameObject.SetActive(true);
             scoreboard.SetActive(true);

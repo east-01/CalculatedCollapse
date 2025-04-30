@@ -143,6 +143,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         currentDashes = maxDashes; // set initial dash count
     }
 
+    private void OnDestroy()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;        
+    }
+
     private void Update()
     {
         if (!Application.isFocused) return;

@@ -54,17 +54,16 @@ public class GameplayBootstrapper : MonoBehaviour, IBootstrapComponent
         } else if(status != Status.COMPLETE) {
             status = Status.COMPLETE;
 
-            BootstrapSequenceManager.Instance.AbortSequence();
+            // BootstrapSequenceManager.Instance.AbortSequence();
 
-            if(InstanceFinder.IsServerStarted) {
-
-                SceneController.Instance.LoadServerScene(new("GameplayScene"));
-                SceneController.Instance.AddClientToScene(InstanceFinder.ClientManager.Connection, new("GameplayScene"));
-            } else {
-                ClientNetworkedScene request = new(new SceneLookupData("GameplayScene"), ClientNetworkedScene.Action.ADD);
-                InstanceFinder.ClientManager.Broadcast(request);
-                UnityEngine.SceneManagement.SceneManager.LoadScene("GameplayScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
-            }
+            // if(InstanceFinder.IsServerStarted) {
+            //     SceneController.Instance.LoadServerScene(new("GameplayScene"));
+            //     SceneController.Instance.AddClientToScene(InstanceFinder.ClientManager.Connection, new("GameplayScene"));
+            // } else {
+            //     ClientNetworkedScene request = new(new SceneLookupData("GameplayScene"), ClientNetworkedScene.Action.ADD);
+            //     InstanceFinder.ClientManager.Broadcast(request);
+            //     UnityEngine.SceneManagement.SceneManager.LoadScene("GameplayScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+            // }
         }
 
         statusText.text = statusMessages[status];

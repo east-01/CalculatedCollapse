@@ -5,6 +5,7 @@ public class InRoundData : PlayerDataClass
     public float health;
     public int wins;
     public string gun; // TODO: Replace with enum/scriptable object reference
+    public bool ready;
 
     public InRoundData() {}
 
@@ -13,5 +14,8 @@ public class InRoundData : PlayerDataClass
         this.health = health;
         this.wins = wins;
         this.gun = gun;
+        this.ready = false;
     }
+
+    public static InRoundData CreateDefault() => new(1, 0, "default");
 }

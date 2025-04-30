@@ -9,9 +9,42 @@ using FishNet;
 using FishNet.Connection;
 using UnityEngine;
 
+/// <summary>
+/// StateInRound watches players while they're in the round.
+/// Transitions to StatePostRound once a winning player is found (last player standing).
+/// </summary>
 public class StateInRound : LobbyState
 {
     public StateInRound(GameLobby gameLobby) : base(gameLobby) 
+    {
+        SpawnPlayers();
+    }
+
+    public override LobbyState CheckForStateChange()
+    {
+        FPSLobby lobby = gameLobby as FPSLobby;
+
+        // Find the winner uid to transition to a winning state.
+        string winnerUID = FindWinnerUID();
+
+        if(Input.GetKeyDown(KeyCode.B)) {
+            BLog.Highlight("Bypassed winner");
+            winnerUID = lobby.Players[UnityEngine.Random.Range(0, lobby.Players.Count)];
+        }
+
+        // No transition if there's no winner
+        if(winnerUID == null)
+            return null;
+
+        PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(winnerUID);
+        InRoundData data = pd.GetData<InRoundData>();
+        data.wins += 1;
+        pd.SetData(data);
+
+        return new StatePostRound(gameLobby, winnerUID);
+    }
+
+    private void SpawnPlayers() 
     {
         FPSLobby lobby = gameLobby as FPSLobby;
         GameplayManager gm = lobby.GameplayManager;
@@ -40,28 +73,12 @@ public class StateInRound : LobbyState
         }
     }
 
-    public override LobbyState CheckForStateChange()
+    private string FindWinnerUID() 
     {
-        FPSLobby lobby = gameLobby as FPSLobby;
-
-        // TEMP: Kill random player
-        if(Input.GetKeyDown(KeyCode.K)) {
-            string uid = lobby.Players[UnityEngine.Random.Range(0, lobby.Players.Count)];
-            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
-            InRoundData data = pd.GetData<InRoundData>();
-            data.health = 0;
-            pd.SetData(data);
-        }
-
-        // if(gameLobby.PlayerCount < 2)
-        //     return null;
-        if(TimeInState < 5) {
-            if(Mathf.Floor(TimeInState) != Mathf.Floor(TimeInState - Time.deltaTime))
-                BLog.Log("waiting for timer");
+        // No winner if player count is less than required players
+        if(gameLobby.PlayerCount < FPSLobby.REQUIRED_PLAYERS)
             return null;
-        }
-    
-        // Find the winner uid to transition to a winning state.
+
         string winnerUID = null;
         foreach(string uid in gameLobby.Players) {
             PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
@@ -79,15 +96,6 @@ public class StateInRound : LobbyState
                 }
             }
         }
-
-        if(winnerUID != null) {
-            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(winnerUID);
-            InRoundData data = pd.GetData<InRoundData>();
-            data.wins += 1;
-            pd.SetData(data);
-            return new StateTransitionRounds(gameLobby, winnerUID);
-        } else {
-            return null;
-        }
+        return winnerUID;
     }
 }

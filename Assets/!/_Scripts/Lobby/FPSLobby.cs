@@ -11,15 +11,17 @@ using UnityEngine;
 
 public class FPSLobby : GameLobby 
 {
+    public static readonly int WINS_PER_MAP = 1;
+    public static readonly int REQUIRED_PLAYERS = 2;
 
     public GameplayManager GameplayManager { get; private set; }
 
-    private SceneLookupData waitingForGM;
+    public SceneLookupData GameplayScene { get; private set; }
 
     public FPSLobby() : base() 
     {
-        State = new StateWarmup(this);
-        waitingForGM = null;
+        State = new StateInLobby(this);
+        GameplayScene = null;
     
         LobbyManager.Instance.LobbyUpdatedEvent += LobbyManager_LobbyUpdatedEvent;
     }
@@ -33,36 +35,57 @@ public class FPSLobby : GameLobby
     {
         base.Update();
 
-        if(waitingForGM is not null)
-            ConnectGameplayManager(waitingForGM);
+        if(GameplayScene is not null && GameplayManager == null)
+            ConnectGameplayManager(GameplayScene);
     }
 
-    public override bool Joinable() => PlayerCount < 2;
+    public override bool Joinable() => PlayerCount < REQUIRED_PLAYERS;
 
     public override void ClaimedScene(SceneLookupData sceneLookupData)
     {
         base.ClaimedScene(sceneLookupData);
 
-        if(!SceneSingletons.Contains(sceneLookupData, typeof(GameplayManager)))
-            waitingForGM = sceneLookupData;
-        else
+        GameplayScene = sceneLookupData;
+        BLog.Highlight($"Set gameplay scene to {GameplayScene}");
+
+        if(SceneSingletons.Contains(sceneLookupData, typeof(GameplayManager)))
             ConnectGameplayManager(sceneLookupData);
+    }
+
+    public override void UnclaimedScene(SceneLookupData sceneLookupData)
+    {
+        base.UnclaimedScene(sceneLookupData);
+
+        if(sceneLookupData != GameplayScene)
+            return;
+
+        DisconnectGameplayManager(sceneLookupData);
+        GameplayScene = null;
     }
 
     private void ConnectGameplayManager(SceneLookupData sld) 
     {
-        if(waitingForGM is not null && waitingForGM != sld)
-            throw new InvalidOperationException($"Can't connect gameplay manager to scene lookup data {sld} since we're currently waiting on {waitingForGM}");
+        if(GameplayScene is not null && GameplayScene != sld)
+            throw new InvalidOperationException($"Can't connect gameplay manager to scene lookup data {sld} since we're currently waiting on {GameplayScene}");
         
         GameplayManager = SceneSingletons.Get(sld, typeof(GameplayManager)) as GameplayManager;
         GameplayManager.Lobby = this;
-        waitingForGM = null;
-        Debug.LogWarning("TODO: We'll have to dispose of the gameplay manager, need to polish scene claiming/unclaiming.");
+    }
+
+    private void DisconnectGameplayManager(SceneLookupData sld) 
+    {
+        GameplayManager.Lobby = null;
+        GameplayManager = null;
     }
 
     private void GiveWin(string uid) 
     {
         BLog.Highlight($"TODO: Give win to {uid}");
+        PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
+        pd.EnsureFPSData();
+
+        FPSPlayerData fpsData = pd.GetData<FPSPlayerData>();
+        fpsData.wins += 1;
     }
 
     private void LobbyManager_LobbyUpdatedEvent(string lobbyID, LobbyData newData, LobbyUpdateReason reason)
