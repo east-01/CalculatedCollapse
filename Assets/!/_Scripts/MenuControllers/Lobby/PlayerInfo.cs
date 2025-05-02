@@ -17,6 +17,8 @@ public class PlayerInfo : MonoBehaviour
     private TMP_Text nullText; // The text that shows when there is no Player
 
     [SerializeField]
+    private GameObject headerContainer;
+    [SerializeField]
     private TMP_Text nameText;
     [SerializeField]
     private TMP_Text winsText;
@@ -25,6 +27,9 @@ public class PlayerInfo : MonoBehaviour
     private GameObject readyButton;
     [SerializeField]
     private TMP_Text readyText;
+
+    [SerializeField]
+    private GameObject playerModel;
 
     private string uid;
 
@@ -39,8 +44,9 @@ public class PlayerInfo : MonoBehaviour
 
         void UpdateVisibility(bool playerNull) {
             nullText.gameObject.SetActive(playerNull);
-            nameText.gameObject.SetActive(!playerNull);
-            winsText.gameObject.SetActive(!playerNull);
+            headerContainer.SetActive(!playerNull);
+            if(playerModel != null)
+                playerModel.SetActive(!playerNull);
             // Get updated later when we have access to InRoundData
             readyButton.SetActive(false);
             readyText.gameObject.SetActive(false);
@@ -64,7 +70,7 @@ public class PlayerInfo : MonoBehaviour
         FPSPlayerData fpsData = pd.GetData<FPSPlayerData>();
 
         nameText.text = fpsData.displayName;
-        winsText.text = "Wins: " + fpsData.wins;
+        winsText.text = fpsData.wins.ToString();
 
         InRoundData irData = pd.GetData<InRoundData>();
         

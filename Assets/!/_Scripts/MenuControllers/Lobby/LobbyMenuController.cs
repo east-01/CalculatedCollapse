@@ -9,10 +9,6 @@ using UnityEngine;
 
 public class LobbyMenuController : MenuController 
 {
-    
-    [SerializeField]
-    private TMP_Text connectingText;
-
     [SerializeField]
     private PlayerInfo leftDriver;
     [SerializeField]
@@ -47,7 +43,6 @@ public class LobbyMenuController : MenuController
     {
         void UpdateVisibility(bool lobbyNull) 
         {
-            connectingText.gameObject.SetActive(lobbyNull);
             leftDriver.gameObject.SetActive(!lobbyNull);
             rightDriver.gameObject.SetActive(!lobbyNull);
         }
