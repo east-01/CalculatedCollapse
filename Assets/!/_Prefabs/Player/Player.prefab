@@ -806,6 +806,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
+--- !u!114 &1649447763507282347 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2531495922123912812, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
+  m_PrefabInstance: {fileID: 3874690111117572039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &9041591637700775042 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5242055345587469125, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
@@ -862,6 +873,50 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.258819
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.9659259
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -180
+      objectReference: {fileID: 0}
+    - target: {fileID: 5230672023369802874, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -30
+      objectReference: {fileID: 0}
+    - target: {fileID: 5463115766808882452, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 55875d30c202efc43bb9b2d6d51b1894, type: 2}
+    - target: {fileID: 5569170016443541387, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6862097068055365215, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: m_Name
       value: PlayerCamera
@@ -872,6 +927,32 @@ PrefabInstance:
       objectReference: {fileID: 4898694727102280}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+--- !u!1 &143641722200146201 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5569170016443541387, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8277151661258592745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143641722200146201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8ee4fc5b9324d64788be5223f342825, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  range: 100
+  fireRate: 15
+  impactForce: 30
+  maxAmmo: 10
+  reloadTime: 1
+  fpsCam: {fileID: 1457892827986241266}
+  muzzleFlash: {fileID: 0}
+  impactEffect: {fileID: 0}
 --- !u!4 &764340086613059586 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5056558041594089104, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
@@ -882,6 +963,27 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   m_PrefabInstance: {fileID: 5528164132361463442}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2033982712507454405 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5804528028763501911, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2284538515719057232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033982712507454405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0fac1adb019892459954d7d9d9fa258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delay: 3
+  explosionRadius: 5
+  explosionForce: 700
+  explosionEffect: {fileID: 0}
 --- !u!114 &3254641920470416100 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7033835814803872886, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
@@ -893,3 +995,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 155d1fe456343134991ae32ae7369829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6272127721743873729 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1998728605162115155, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1493577237411790450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6272127721743873729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac55af4d21eeae046843181b663eb3d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedWeapon: 0
+  GunText: {fileID: 1649447763507282347}
+--- !u!1 &7699418012859836805 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2769194932755549975, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7332009674159276909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7699418012859836805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0fac1adb019892459954d7d9d9fa258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delay: 3
+  explosionRadius: 5
+  explosionForce: 700
+  explosionEffect: {fileID: 0}
+--- !u!1 &8866393124004387154 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4016149206900850624, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7838661235722020129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8866393124004387154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8ee4fc5b9324d64788be5223f342825, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  range: 100
+  fireRate: 15
+  impactForce: 30
+  maxAmmo: 10
+  reloadTime: 1
+  fpsCam: {fileID: 1457892827986241266}
+  muzzleFlash: {fileID: 0}
+  impactEffect: {fileID: 0}
