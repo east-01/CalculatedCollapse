@@ -7,7 +7,7 @@ public class PlayerAnimation : MonoBehaviour
     private Animator animator;
     private Vector3 lastPosition;
 
-    [Header("Optional Head Look Settings")]
+    [Header("Head Look Settings")]
     public Transform headBone; // robot's head bone
     public Transform cameraAttachPoint;
     public float headRotationSpeed = 5f;
@@ -30,7 +30,7 @@ public class PlayerAnimation : MonoBehaviour
         float moveX = localDelta.x / Time.deltaTime;
         float moveZ = localDelta.z / Time.deltaTime;
         float moveSpeed = new Vector3(localDelta.x, 0, localDelta.z).magnitude / Time.deltaTime;
-        bool isRunning = Input.GetKey(KeyCode.LeftShift) && Mathf.Abs(moveZ) > 0.1f; // only allow forward/back
+        bool isRunning = Input.GetKey(KeyCode.LeftShift); // only allow forward/back
         
         animator.SetFloat("MoveX", moveX);
         animator.SetFloat("MoveZ", moveZ);
