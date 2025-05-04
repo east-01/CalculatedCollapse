@@ -11,9 +11,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private CharacterController characterController;
 
     // Input values
+    public bool jumpInput;       // accessed by player animation
+    public bool sprintingInput; // accessed by player animation
     private Vector2 movementInput;
-    private bool sprintingInput;
-    private bool jumpInput;
     private bool crouchInput;
     private bool zoomInput;
     private bool dashInput;

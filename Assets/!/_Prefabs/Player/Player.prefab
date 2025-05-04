@@ -366,6 +366,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7266129a98bda4791676034efe6839, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpInput: 0
+  sprintingInput: 0
   cameraAttachPoint: {fileID: 4718917724592500}
   playerCamera: {fileID: 1457892827986241266}
   walkSpeed: 6
@@ -903,6 +905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec431d67df016524abfefbbe1f6c9fa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMovement: {fileID: 8554514546108795878}
   headBone: {fileID: 4618409579754108898}
   cameraAttachPoint: {fileID: 4718917724592500}
   headRotationSpeed: 5
