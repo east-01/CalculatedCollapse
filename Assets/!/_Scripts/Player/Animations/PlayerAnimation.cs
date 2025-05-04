@@ -33,6 +33,7 @@ public class PlayerAnimation : MonoBehaviour
         float moveZ = localDelta.z / Time.deltaTime;
         float moveSpeed = new Vector3(localDelta.x, 0, localDelta.z).magnitude / Time.deltaTime;
 
+        // animator controller
         if (Input.GetKeyDown(KeyCode.Space))
         {
             animator.SetBool("Jump", true);
@@ -42,19 +43,15 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetFloat("MoveZ", moveZ);
         animator.SetBool("IsRunning", playerMovement.sprintingInput);
         animator.SetBool("IsAiming", playerMovement.zoomInput);
-        lastPosition = currentPosition;
+        animator.SetBool("IsCrouching", playerMovement.crouchInput);
 
-        // head follow camera
-        if (headBone != null && cameraAttachPoint != null)
-        {
-            Vector3 directionToLook = cameraAttachPoint.position + cameraAttachPoint.forward * 10f - headBone.position;
-            Quaternion targetRotation = Quaternion.LookRotation(directionToLook);
-            
-            // clamp rotation angle
-            float angle = Vector3.Angle(headBone.forward, directionToLook);
-            if (angle < maxHeadTurnAngle)
-                headBone.rotation = Quaternion.Slerp(headBone.rotation, targetRotation, headRotationSpeed * Time.deltaTime);
-        }
+        // death animations (only the beginning of the animation)
+        animator.SetBool("IsDead", true);
+        animator.SetFloat("deathType", Random.Range(0,0)); // TODO: or based on cause of death
+
+        // then we switch to ragdoll physics (after the initial fall - this is better for realism)
+
+        lastPosition = currentPosition;
     }
 
     IEnumerator ResetJumpFlag()
