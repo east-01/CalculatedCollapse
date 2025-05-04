@@ -11,11 +11,11 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private CharacterController characterController;
 
     // Input values
-    public bool sprintingInput;  // accessed by player animation
+    public bool sprintingInput;  // accessed by player animation (running)
+    public bool zoomInput;       // accessed by player animation (aiming)
     private bool jumpInput;      // 
     private Vector2 movementInput;
     private bool crouchInput;
-    private bool zoomInput;
     private bool dashInput;
     private bool leanLeftInput;
     private bool leanRightInput;
@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private Vector3 standCenter = new Vector3(0, 0, 0);
 
     [Header("Jump Settings")]
-    public float jumpForce = 8f;
+    public float jumpForce = 10f;
     private float verticalVelocity;
     private bool lastJump;
 

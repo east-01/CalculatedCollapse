@@ -32,7 +32,6 @@ public class PlayerAnimation : MonoBehaviour
         float moveX = localDelta.x / Time.deltaTime;
         float moveZ = localDelta.z / Time.deltaTime;
         float moveSpeed = new Vector3(localDelta.x, 0, localDelta.z).magnitude / Time.deltaTime;
-        bool isRunning = playerMovement.sprintingInput;
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -41,7 +40,8 @@ public class PlayerAnimation : MonoBehaviour
         }
         animator.SetFloat("MoveX", moveX);
         animator.SetFloat("MoveZ", moveZ);
-        animator.SetBool("IsRunning", isRunning);
+        animator.SetBool("IsRunning", playerMovement.sprintingInput);
+        animator.SetBool("IsAiming", playerMovement.zoomInput);
         lastPosition = currentPosition;
 
         // head follow camera
