@@ -33,12 +33,15 @@ public class PlayerAnimation : MonoBehaviour
         float moveZ = localDelta.z / Time.deltaTime;
         float moveSpeed = new Vector3(localDelta.x, 0, localDelta.z).magnitude / Time.deltaTime;
         bool isRunning = playerMovement.sprintingInput;
-        bool isJumping = playerMovement.jumpInput;
-        
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            animator.SetBool("Jump", true);
+            StartCoroutine(ResetJumpFlag());
+        }
         animator.SetFloat("MoveX", moveX);
         animator.SetFloat("MoveZ", moveZ);
         animator.SetBool("IsRunning", isRunning);
-        animator.SetBool("Jump", isJumping);
         lastPosition = currentPosition;
 
         // head follow camera
@@ -52,5 +55,11 @@ public class PlayerAnimation : MonoBehaviour
             if (angle < maxHeadTurnAngle)
                 headBone.rotation = Quaternion.Slerp(headBone.rotation, targetRotation, headRotationSpeed * Time.deltaTime);
         }
+    }
+
+    IEnumerator ResetJumpFlag()
+    {
+        yield return null; // 1 frame later
+        animator.SetBool("Jump", false);
     }
 }
