@@ -15,16 +15,23 @@ using UnityEngine;
 public class PlayerHUDMenuController : MenuController
 {
 
+    public static readonly string SUB_MENU_ACTIVE = "active";
+    public static readonly string SUB_MENU_PAUSE = "pause";
+
     [SerializeField]
-    private TMP_Text healthText;
+    private CanvasGroup activeHolder;
+    public CanvasGroup ActiveHolder => activeHolder;
     [SerializeField]
     private GameObject scoreboard;
     [SerializeField]
     private TMP_Text winText;
     [SerializeField]
     private TMP_Text oppWinText;
+
     [SerializeField]
-    private TMP_Text gunText;
+    private HealthBar healthBar;
+    [SerializeField]
+    private Crosshair crosshair;
 
     private Player player;
 
@@ -41,6 +48,9 @@ public class PlayerHUDMenuController : MenuController
 
     private void Update()
     {
+        if(!IsOpen)
+            return;
+
         if(player == null && player.uid.Value != null)
             return;
 
@@ -58,10 +68,19 @@ public class PlayerHUDMenuController : MenuController
         PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(player.uid.Value);
         InRoundData data = pd.GetData<InRoundData>();
 
-        healthText.text = (int)(data.health*100) + "%";
-        gunText.text = data.gun;        
+        healthBar.Value = data.health;
         winText.text = data.wins.ToString();
         oppWinText.text = GetOppWins();
+
+        if(Input.GetKeyDown(KeyCode.H))
+            crosshair.ShowHitmarker();
+
+        if(Input.GetKeyDown(KeyCode.Escape)) {
+            GetSubMenu(SUB_MENU_PAUSE).Open();
+            ActiveHolder.alpha = 0f;
+        }
+
+        // TODO: Update gun icon
     }
 
     /// <summary>
@@ -74,20 +93,16 @@ public class PlayerHUDMenuController : MenuController
         // TODO: This can probably be written wayyy better, but waiting for our ui to be more 
         //   fleshed out
         if(stateString == typeof(StateWarmup).ToString()) {
-            healthText.gameObject.SetActive(false);
-            gunText.gameObject.SetActive(true);
+            healthBar.gameObject.SetActive(false);
             scoreboard.SetActive(false);
         } else if(stateString == typeof(StateInRound).ToString()) {
-            healthText.gameObject.SetActive(true);
-            gunText.gameObject.SetActive(true);
+            healthBar.gameObject.SetActive(true);
             scoreboard.SetActive(true);
         } else if(stateString == typeof(StatePostRound).ToString()) {
-            healthText.gameObject.SetActive(false);
-            gunText.gameObject.SetActive(true);
+            healthBar.gameObject.SetActive(false);
             scoreboard.SetActive(true);
         } else {
-            healthText.gameObject.SetActive(false);
-            gunText.gameObject.SetActive(false);
+            healthBar.gameObject.SetActive(false);
             scoreboard.SetActive(false);
         }
     }
