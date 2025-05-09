@@ -36,12 +36,12 @@ public class GunRaycast : MonoBehaviour, IInputListener
     /// <summary>
     /// Current number of bullets in the magazine.
     /// </summary>
-    private int currentAmmo;
+    public int CurrentAmmo { get; private set; }
 
     private void Awake() 
     {
         player = GetComponent<Player>();
-        currentAmmo = maxAmmo;
+        CurrentAmmo = maxAmmo;
 
         if (fpCamera == null)
             Debug.LogWarning("GunRaycast: Missing fpCamera reference.");
@@ -51,7 +51,7 @@ public class GunRaycast : MonoBehaviour, IInputListener
     {
         if (!Application.isFocused) return;
 
-        if (!isFiring || fpCamera == null || player == null || currentAmmo <= 0)
+        if (!isFiring || fpCamera == null || player == null || CurrentAmmo <= 0)
             return;
 
         if (Time.time >= nextTimeToFire)
@@ -91,15 +91,15 @@ public class GunRaycast : MonoBehaviour, IInputListener
     /// </summary>
     private void Shoot() 
     {
-        if (currentAmmo <= 0)
+        if (CurrentAmmo <= 0)
         {
             Debug.Log("GunRaycast: Out of ammo!");
             return;
         }
 
         Debug.Log("GunRaycast: Shoot() called");
-        currentAmmo--;
-        Debug.Log($"GunRaycast: Ammo left = {currentAmmo}");
+        CurrentAmmo--;
+        Debug.Log($"GunRaycast: Ammo left = {CurrentAmmo}");
 
         Vector3 rayOrigin = fpCamera.transform.position;
         Vector3 rayDirection = fpCamera.transform.forward;
@@ -132,8 +132,8 @@ public class GunRaycast : MonoBehaviour, IInputListener
     /// </summary>
     private void Reload()
     {
-        currentAmmo = maxAmmo;
-        Debug.Log("GunRaycast: Reloaded. Ammo = " + currentAmmo);
+        CurrentAmmo = maxAmmo;
+        Debug.Log("GunRaycast: Reloaded. Ammo = " + CurrentAmmo);
         Debug.Log("🔁 Reload pressed");
     }
 }

@@ -22,8 +22,6 @@ public class FirstPersonCamera : MonoBehaviour, IInputListener
     // Internal state to track vertical rotation
     private float verticalRotation = 0f;
 
-    private bool locked = false;
-
     private void Start() 
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -31,14 +29,6 @@ public class FirstPersonCamera : MonoBehaviour, IInputListener
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape)) {
-            locked = !locked;
-            Debug.Log("Locked: " + locked);
-        }
-
-        if(locked)
-            return;
-
         // TODO: Remove, temp input- true input in InputPoll
         // input = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 

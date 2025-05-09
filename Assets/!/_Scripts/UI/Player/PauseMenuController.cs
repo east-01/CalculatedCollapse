@@ -1,23 +1,26 @@
+using EMullen.Core;
 using EMullen.MenuController;
+using EMullen.Networking;
+using EMullen.SceneMgmt;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
-public class PauseMenuController : MenuController 
+public class PauseMenuController : MenuController, IInputListener
 {
 
     private float timeOpen;
     [SerializeField]
-    private float minTiimeOpen = 0.1f;
+    private float minTimeOpen = 0.1f;
 
     private void Update()
     {
         if(!IsOpen)
             return;
 
-
-        if(Input.GetKeyDown(KeyCode.Escape) && Time.time - timeOpen > minTiimeOpen)
-            Close();
-            // ParentMenu.Open();
+        // if(Input.GetKeyDown(KeyCode.Escape) && Time.time - timeOpen > minTimeOpen)
+        //     SendMenuBack();
     }
 
     protected override void Opened()
@@ -26,11 +29,31 @@ public class PauseMenuController : MenuController
         timeOpen = Time.time;
     }   
 
-    protected override void Closed()
+    public void QuitPressed() 
     {
-        base.Closed();
-        (ParentMenu as PlayerHUDMenuController).ActiveHolder.alpha = 1f;
+        NetworkController.Instance.StopNetwork();
+        BLog.Highlight("TODO: Title screen");
     }
 
+    public void ResumePressed() => Exit();
 
+    private void Exit() 
+    {
+        SendMenuBack();
+        (ParentMenu as PlayerHUDMenuController).Shown();
+    }
+
+    public void InputEvent(InputAction.CallbackContext context)
+    {
+        switch(context.action.name) 
+        {
+            case "Pause":
+                if(context.performed && IsOpen) {
+                    Exit();
+                }
+                break;
+        }
+    }
+
+    public void InputPoll(InputAction action) {}
 }

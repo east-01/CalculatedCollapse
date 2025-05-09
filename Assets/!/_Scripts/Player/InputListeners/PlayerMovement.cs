@@ -137,9 +137,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         defaultYPos = cameraAttachPoint.localPosition.y;
         defaultCamLocalPos = cameraAttachPoint.localPosition;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         currentDashes = maxDashes; // set initial dash count
     }
 

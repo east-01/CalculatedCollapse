@@ -308,6 +308,10 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 1450876365604900663}
   uidReadout: 
   camera: {fileID: 1457892827986241266}
+  activeComponents:
+  - {fileID: 8554514546108795878}
+  - {fileID: 3254641920470416100}
+  - {fileID: 8964458525228373197}
 --- !u!114 &4172409528695446178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,6 +358,12 @@ MonoBehaviour:
   - actionName: Lean Right
     listener: {fileID: 8554514546108795878}
     pollInput: 1
+  - actionName: Pause
+    listener: {fileID: 4668408997459960316}
+    pollInput: 0
+  - actionName: Pause
+    listener: {fileID: 1198322539793668048}
+    pollInput: 0
 --- !u!114 &8554514546108795878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -811,6 +821,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
+--- !u!114 &1198322539793668048 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2694531505297776663, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
+  m_PrefabInstance: {fileID: 3874690111117572039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e09bb28109f011e459080e4e1464eb23, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4668408997459960316 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8434168013157504571, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
+  m_PrefabInstance: {fileID: 3874690111117572039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c208c77f1922df4d86ef8364a7b0f29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &9041591637700775042 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5242055345587469125, guid: 47b26ba3fe8469847ba1742eeb504b75, type: 3}
@@ -1949,6 +1981,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 1450876365604900663}
   uidReadout: 
   camera: {fileID: 0}
+  activeComponents: []
 --- !u!114 &5435534739106973416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1979,6 +2012,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 0}
   uidReadout: 
   camera: {fileID: 0}
+  activeComponents: []
 --- !u!114 &6608357401127786976
 MonoBehaviour:
   m_ObjectHideFlags: 0

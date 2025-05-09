@@ -7,12 +7,13 @@ using EMullen.Networking.Lobby;
 using EMullen.PlayerMgmt;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// The PlayerHUDMenuController class is responsible for controlling everything in the player's
 ///   pov.
 /// </summary>
-public class PlayerHUDMenuController : MenuController
+public class PlayerHUDMenuController : MenuController, IInputListener
 {
 
     public static readonly string SUB_MENU_ACTIVE = "active";
@@ -75,12 +76,35 @@ public class PlayerHUDMenuController : MenuController
         if(Input.GetKeyDown(KeyCode.H))
             crosshair.ShowHitmarker();
 
-        if(Input.GetKeyDown(KeyCode.Escape)) {
-            GetSubMenu(SUB_MENU_PAUSE).Open();
-            ActiveHolder.alpha = 0f;
-        }
-
         // TODO: Update gun icon
+    }
+
+    protected override void Opened()
+    {
+        Shown();
+    }
+
+    protected override void Closed() 
+    {
+        Hidden();
+    }
+
+    public void Shown() 
+    {
+        activeHolder.alpha = 1f;        
+        player.SetPlayerActive(player.HasLocalPlayer);
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    public void Hidden() 
+    {
+        activeHolder.alpha = 0f;
+        player.SetPlayerActive(false);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     /// <summary>
@@ -139,4 +163,18 @@ public class PlayerHUDMenuController : MenuController
         return oppData.wins.ToString();
     }
 
+    public void InputEvent(InputAction.CallbackContext context)
+    {
+        switch(context.action.name) 
+        {
+            case "Pause":
+                if(context.performed && IsOpen && !IsSubMenuOpen) {
+                    GetSubMenu(SUB_MENU_PAUSE).Open();
+                    Hidden();
+                }
+                break;
+        }
+    }
+
+    public void InputPoll(InputAction action) {}
 }

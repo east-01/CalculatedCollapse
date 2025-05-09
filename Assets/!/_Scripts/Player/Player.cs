@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EMullen.Core;
 using EMullen.PlayerMgmt;
 using EMullen.SceneMgmt;
@@ -30,17 +31,23 @@ public class Player : NetworkBehaviour, IS3
 
     private GameplayManager gameplayManager;
     private LocalPlayer localPlayer;
+    public bool HasLocalPlayer => localPlayer != null;
 
     private PlayerInputManager playerInputManager;
 
     [SerializeField]
     private new Camera camera;
+    /// <summary>
+    /// A list of components that should be active/inactive
+    /// </summary>
+    [SerializeField]
+    private List<Behaviour> activeComponents;
 
 #region Initializers
     private void Awake()
     {
         playerInputManager = GetComponent<PlayerInputManager>();
-        UpdateActiveComponents();
+        SetPlayerActive(localPlayer != null);
     }
 
     public void SingletonRegistered(Type type, object singleton)
@@ -89,7 +96,7 @@ public class Player : NetworkBehaviour, IS3
            ConnectPlayer(PlayerManager.Instance.LocalPlayers[idx.Value]);
         }
 
-        UpdateActiveComponents(); 
+        SetPlayerActive(localPlayer != null);
     }
 
     public void ConnectPlayer(LocalPlayer localPlayer) 
@@ -104,21 +111,10 @@ public class Player : NetworkBehaviour, IS3
     }
 
     /// <summary>
-    /// Update the components related to having a localplayer attached or not
+    /// Update behaviours that should be enabled/disabled if the general player actions should be
+    ///   enabled/disabled.
     /// </summary>
-    private void UpdateActiveComponents() 
-    {
-        for(int childIdx = 0; childIdx < transform.childCount; childIdx++) {
-            GameObject child = transform.GetChild(childIdx).gameObject;
-            if(child.name == "Root")
-                continue;
-            child.SetActive(localPlayer != null);
-        }
-
-        GetComponent<PlayerMovement>().enabled = localPlayer != null;
-        GetComponent<CharacterController>().enabled = localPlayer != null;
-        // GetComponent<ToolBelt>().enabled = localPlayer != null;
-    }
+    public void SetPlayerActive(bool active) => activeComponents.ForEach(beh => beh.enabled = active);
 
     /// <summary>
     /// Set the player's position and rotation, requires disabling CharacterController for
