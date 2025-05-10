@@ -92,7 +92,7 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     public void Shown() 
     {
         activeHolder.alpha = 1f;        
-        player.SetPlayerActive(player.HasLocalPlayer);
+        player.SetPlayerBehavioursActive(player.HasLocalPlayer);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -101,7 +101,8 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     public void Hidden() 
     {
         activeHolder.alpha = 0f;
-        player.SetPlayerActive(false);
+        if(player.HasLocalPlayer)
+            player.SetPlayerBehavioursActive(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

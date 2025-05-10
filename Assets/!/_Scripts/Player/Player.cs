@@ -41,13 +41,17 @@ public class Player : NetworkBehaviour, IS3
     /// A list of components that should be active/inactive
     /// </summary>
     [SerializeField]
-    private List<Behaviour> activeComponents;
+    private List<Behaviour> activeBehaviours;
+    /// <summary>
+    /// A list of GameObjects that should be active/inactive
+    /// </summary>
+    [SerializeField]
+    private List<GameObject> activeGameObjects;
 
 #region Initializers
     private void Awake()
     {
         playerInputManager = GetComponent<PlayerInputManager>();
-        SetPlayerActive(localPlayer != null);
     }
 
     public void SingletonRegistered(Type type, object singleton)
@@ -96,7 +100,8 @@ public class Player : NetworkBehaviour, IS3
            ConnectPlayer(PlayerManager.Instance.LocalPlayers[idx.Value]);
         }
 
-        SetPlayerActive(localPlayer != null);
+        SetPlayerBehavioursActive(localPlayer != null);
+        SetPlayerGameObjectsActive(localPlayer != null);
     }
 
     public void ConnectPlayer(LocalPlayer localPlayer) 
@@ -114,7 +119,12 @@ public class Player : NetworkBehaviour, IS3
     /// Update behaviours that should be enabled/disabled if the general player actions should be
     ///   enabled/disabled.
     /// </summary>
-    public void SetPlayerActive(bool active) => activeComponents.ForEach(beh => beh.enabled = active);
+    public void SetPlayerBehavioursActive(bool active) => activeBehaviours.ForEach(beh => beh.enabled = active);
+    /// <summary>
+    /// Update GameObjects that should be enabled/disabled if the general player actions should be
+    ///   enabled/disabled.
+    /// </summary>
+    public void SetPlayerGameObjectsActive(bool active) => activeGameObjects.ForEach(go => go.SetActive(active));
 
     /// <summary>
     /// Set the player's position and rotation, requires disabling CharacterController for
