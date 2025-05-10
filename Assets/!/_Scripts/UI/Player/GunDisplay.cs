@@ -12,7 +12,7 @@ public class GunDisplay : MonoBehaviour
     private Image gunImage;
 
     private Player player;
-    private GunRaycast gun;
+    // private GunRaycast gun;
 
     private void Awake()
     {
@@ -21,11 +21,11 @@ public class GunDisplay : MonoBehaviour
             Debug.LogError("Failed to get player in parent. It is assumed that the PlayerHUDMenuController is on a canvas that's a child of a Player GameObject.");
             return;
         }
-        gun = player.GetComponentInChildren<GunRaycast>();
+        // gun = player.GetComponentInChildren<GunRaycast>();
     }
 
     private void Update() 
     {
-        ammoText.text = $"{gun.CurrentAmmo} / {gun.maxAmmo}";
+        // ammoText.text = $"{gun.CurrentAmmo} / {gun.maxAmmo}";
     }
 }
