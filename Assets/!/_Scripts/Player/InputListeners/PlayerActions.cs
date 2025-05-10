@@ -24,11 +24,31 @@ public class PlayerActions : MonoBehaviour, IInputListener
     public void InputEvent(InputAction.CallbackContext context)
     {
         switch(context.action.name) {
-            case "":
-
+            case "Interact":
+                TryInteract();
                 break;
         }
     }
+    
+    private void TryInteract()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, 3f)) // Adjust interaction range as needed
+        {
+            if (hit.collider.CompareTag("Destructible"))
+            {
+                WallInteraction wall = hit.collider.GetComponent<WallInteraction>();
+                if (wall != null && wall.IsSpawned) // Make sure it's a valid networked object
+                {
+                    wall.Interact(); // Tell server to disable wall
+                }
+            }
+        }
+    }
+
 
     public void InputPoll(InputAction action) {}
 
