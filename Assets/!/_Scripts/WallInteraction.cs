@@ -1,5 +1,4 @@
 using FishNet.Object;
-using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 public class WallInteraction : NetworkBehaviour
@@ -9,31 +8,40 @@ public class WallInteraction : NetworkBehaviour
 
     private bool isDisabled = false;
 
-    // Called by the local player, runs on the server
-    [ServerRpc]
+    /// Called by a client to request the wall be disabled.
+    /// Must be marked as RequireOwnership = false if wall isn't client-owned.
+    [ServerRpc(RequireOwnership = false)]
     public void Interact()
     {
-        if (isDisabled) return;
+        Debug.Log("✅ Interact RPC called on server!");
+
+        if (isDisabled)
+        {
+            Debug.Log("⚠️ Wall already disabled.");
+            return;
+        }
 
         isDisabled = true;
 
-        // Apply change on server
+        // Apply server-side state
         SetWallState(false);
 
-        // Tell all clients to update their wall state
+        // Sync to all clients
         SetWallStateObservers(false);
     }
 
-    // Called on all clients by the server
+    /// Updates the state of the wall on all clients.
     [ObserversRpc]
     private void SetWallStateObservers(bool enabled)
     {
         SetWallState(enabled);
     }
 
-    // Handles local state toggling (visuals + collider)
+    /// Disables/enables the wall collider and visuals.
     private void SetWallState(bool enabled)
     {
+        Debug.Log($"🔧 SetWallState: {(enabled ? "ENABLED" : "DISABLED")}");
+
         if (wallCollider != null)
             wallCollider.enabled = enabled;
 

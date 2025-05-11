@@ -141,7 +141,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Destroy Wall",
+                    "name": "Interact",
                     "type": "Button",
                     "id": "5657170a-d676-4c98-9d6a-d92413966fd1",
                     "expectedControlType": "Button",
@@ -444,7 +444,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Destroy Wall",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
