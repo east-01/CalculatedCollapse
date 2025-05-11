@@ -483,7 +483,19 @@ MonoBehaviour:
   _componentIndexCache: 2
   _addedNetworkObject: {fileID: 1450876365604900663}
   _networkObjectCache: {fileID: 1450876365604900663}
-  _audioClips: []
+  _audioClips:
+  - id: walk
+    audioClip: {fileID: 8300000, guid: 0274781e5a92b5f40bac5d0be86fa7f9, type: 3}
+  - id: sprint
+    audioClip: {fileID: 8300000, guid: 3216cce474dc6224cbff2f9894cac776, type: 3}
+  - id: climb
+    audioClip: {fileID: 8300000, guid: 96afea212f20aa042875ec269aab355f, type: 3}
+  - id: vault
+    audioClip: {fileID: 8300000, guid: 1f0bb61f41a919f42b300290ffa175d0, type: 3}
+  - id: death
+    audioClip: {fileID: 8300000, guid: 9a07937d38b106944a8ccf323cc8024c, type: 3}
+  - id: dash
+    audioClip: {fileID: 8300000, guid: 1cbc7b00981b5a84694aa14c1ebe6e06, type: 3}
 --- !u!143 &9139026534003978452
 CharacterController:
   m_ObjectHideFlags: 0
