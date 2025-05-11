@@ -746,7 +746,7 @@ PrefabInstance:
     - target: {fileID: 4338066785846636683, guid: 6ab4ee2a2d17e0f4b860d82d13d88bdf, type: 3}
       propertyPath: _spawnablePrefabs
       value: 
-      objectReference: {fileID: 11400000, guid: 191507464a624eb4aa2fd3341c3745e9, type: 2}
+      objectReference: {fileID: 11400000, guid: fff014a43f7d6b243a2bda218f306ae7, type: 2}
     - target: {fileID: 7460304594499603624, guid: 6ab4ee2a2d17e0f4b860d82d13d88bdf, type: 3}
       propertyPath: m_IsActive
       value: 0
