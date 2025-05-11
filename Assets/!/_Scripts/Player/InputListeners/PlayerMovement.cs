@@ -2,6 +2,7 @@ using EMullen.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System;
 
 [RequireComponent(typeof(NetworkedAudioController))]
 [RequireComponent(typeof(CharacterController))]
@@ -9,6 +10,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 {
     private NetworkedAudioController audioController;
     private CharacterController characterController;
+
+    public event Action OnJumpPerformed; // event is invoked when jumping
 
     // Input values
     public bool sprintingInput;  // accessed by player animation (running)
@@ -185,7 +188,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         wallFront = Physics.SphereCast(transform.position, sphereCastRadius, orientation.forward, out frontWallHit, detectionLength, whatIsLadder);
         wallLookAngle = Vector3.Angle(orientation.forward, -frontWallHit.normal); // player-to-wall angle within certain bounds to allow climbing
 
-        if (wallFront && Input.GetKey(KeyCode.W) && wallLookAngle < maxWallLookAngle)
+        if (wallFront && movementInput.y > 0.1f && wallLookAngle < maxWallLookAngle)
         {
             if (!climbing) climbing = true; // start climbing
             Vector3 climbDirection = (Vector3.up + orientation.forward * 0.2f).normalized; // forward nudge to "walk into" ladder
@@ -497,7 +500,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                 jumpInput = action.ReadValue<float>() > 0.1f;
 
                 if (jumpInput)
+                {
                     lastJumpPressTime = Time.time;
+                    OnJumpPerformed?.Invoke(); // notify listeners like PlayerAnimation
+                }
                 break;
             case "Crouch":
                 crouchInput = action.ReadValue<float>() > 0.1f;

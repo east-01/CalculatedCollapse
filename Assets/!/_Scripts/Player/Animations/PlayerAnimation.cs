@@ -17,6 +17,15 @@ public class PlayerAnimation : MonoBehaviour
         lastPosition = transform.position;
 
         //PlayDeath(); // TEMP test
+
+        // subscribe to jump event
+        playerMovement.OnJumpPerformed += HandleJumpAnimation;
+    }
+
+    void OnDestroy()
+    {
+        // unsubscribe to prevent memory leaks
+        playerMovement.OnJumpPerformed -= HandleJumpAnimation;
     }
 
     void Update()
@@ -40,13 +49,13 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool("IsAiming", playerMovement.zoomInput);
         animator.SetBool("IsCrouching", playerMovement.crouchInput);
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            animator.SetBool("Jump", true);
-            StartCoroutine(ResetJumpFlag());
-        }
-
         lastPosition = transform.position;
+    }
+
+    void HandleJumpAnimation()
+    {
+        animator.SetBool("Jump", true);
+        StartCoroutine(ResetJumpFlag());
     }
 
     IEnumerator ResetJumpFlag()
