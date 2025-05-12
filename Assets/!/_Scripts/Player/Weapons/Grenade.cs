@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class Grenade : MonoBehaviour
+public class Grenade : Weapon
 {
-    public float delay = 3f;
     public float explosionRadius = 5f;
     public float explosionForce = 700f;
     public GameObject explosionEffect;
@@ -12,7 +11,7 @@ public class Grenade : MonoBehaviour
 
     void Start()
     {
-        countdown = delay;
+        countdown = UseRate;
     }
 
     void Update()

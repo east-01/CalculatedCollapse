@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using EMullen.PlayerMgmt;
+using System;
 
 public class WeaponSwitching : MonoBehaviour
 {
@@ -18,22 +19,12 @@ public class WeaponSwitching : MonoBehaviour
     {
         int previousSelectedWeapon = selectedWeapon;
 
-        // Scroll up
-        if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-        {
-            if (selectedWeapon <= 0)
-                selectedWeapon = transform.childCount - 1;
-            else
-                selectedWeapon--;
-        }
-        // Scroll down
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-        {
-            if (selectedWeapon >= transform.childCount - 1)
-                selectedWeapon = 0;
-            else
-                selectedWeapon++;
-        }
+        int scrollDir = Math.Sign(Input.GetAxis("Mouse ScrollWheel"));
+        selectedWeapon += scrollDir;
+        if(selectedWeapon > transform.childCount-1)
+            selectedWeapon = 0;
+        else if(selectedWeapon < 0)
+            selectedWeapon = transform.childCount-1;
 
         // Number key input
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -62,30 +53,34 @@ public class WeaponSwitching : MonoBehaviour
 
     void SelectWeapon()
     {
-        int i = 0;
-        foreach (Transform weapon in transform)
-        {
-            bool isActive = (i == selectedWeapon);
-            weapon.gameObject.SetActive(isActive);
-
-            if (isActive)
-            {
-                if (GunText != null)
-                {
-                    GunText.text = weapon.name;
-                }
-
-                // Update player's InRoundData.gun so the HUD can read it
-                Player player = GetComponentInParent<Player>();
-                if (player != null && PlayerDataRegistry.Instance.Contains(player.uid.Value))
-                {
-                    var playerData = PlayerDataRegistry.Instance.GetPlayerData(player.uid.Value);
-                    var data = playerData.GetData<InRoundData>();
-                    data.gun = weapon.name;
-                }
-            }
-
-            i++;
+        // Change active state
+        for(int i = 0; i < transform.childCount; i++) {
+            GameObject child = transform.GetChild(i).gameObject;
+            bool isActive = i == selectedWeapon;
+            child.SetActive(isActive);
         }
+
+        Weapon weapon = GetWeapon();
+
+        if (GunText != null)
+            GunText.text = weapon.name;
+
+        // Update player's InRoundData.gun so the HUD can read it
+        Player player = GetComponentInParent<Player>();
+        if (player != null && PlayerDataRegistry.Instance.Contains(player.uid.Value)) {
+            PlayerData playerData = PlayerDataRegistry.Instance.GetPlayerData(player.uid.Value);
+            InRoundData data = playerData.GetData<InRoundData>();
+            data.gun = weapon.name;
+            playerData.SetData(data);
+        }
+    }
+
+    public Weapon GetWeapon() {
+        try {
+            return transform.GetChild(selectedWeapon).gameObject.GetComponent<Weapon>();
+        } catch(UnityException e) {
+            Debug.LogError($"Failed to get weapon at index {selectedWeapon}: " + e.Message);
+        }
+        return null;
     }
 }

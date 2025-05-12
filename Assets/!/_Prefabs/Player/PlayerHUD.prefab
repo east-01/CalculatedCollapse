@@ -839,6 +839,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ammoText: {fileID: 6480600264294816113}
   gunNameText: {fileID: 5314050377966376851}
+  gunImage: {fileID: 6286243762219194405}
 --- !u!222 &213858873874325157
 CanvasRenderer:
   m_ObjectHideFlags: 0

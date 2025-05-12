@@ -1,15 +1,10 @@
 using UnityEngine;
 
-public class Gun : MonoBehaviour
+public class Gun : Weapon
 {
     public float damage = 10f;
     public float range = 100f;
-    public float fireRate = 15f;
     public float impactForce = 30f;
-
-    public int maxAmmo = 10;
-    private int currentAmmo = -1;
-    public float reloadTime = 1f;
 
     public Camera fpsCam;
     public ParticleSystem muzzleFlash;
@@ -19,14 +14,13 @@ public class Gun : MonoBehaviour
 
     void Start()
     {
-        if (currentAmmo == -1)
-            currentAmmo = maxAmmo;
+        Uses = MaxUses;
     }
 
     void Update()
     {
         // If out of ammo, reload and return early
-        if (currentAmmo <= 0)
+        if (Uses <= 0)
         {
             Reload();
             return;
@@ -35,7 +29,7 @@ public class Gun : MonoBehaviour
         // Handle shooting if Fire1 is pressed and fireRate delay passed
         if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
         {
-            nextTimeToFire = Time.time + 1f / fireRate;
+            nextTimeToFire = Time.time + UseRate;
             Shoot();
         }
     }
@@ -43,12 +37,12 @@ public class Gun : MonoBehaviour
     void Reload()
     {
         Debug.Log("Reloading...");
-        currentAmmo = maxAmmo;
+        Uses = MaxUses;
     }
 
     void Shoot()
     {
-        currentAmmo--;
+        Uses--;
 
         if (muzzleFlash != null)
             muzzleFlash.Play();
