@@ -1,0 +1,28 @@
+fileFormatVersion: 2
+guid: 93a2f5a433b187841979471ac3599cb1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - sfxSource: {instanceID: 0}
+  - walk: {fileID: 8300000, guid: 0274781e5a92b5f40bac5d0be86fa7f9, type: 3}
+  - run: {fileID: 8300000, guid: dc618affc94feb94bbc849f88f9c137b, type: 3}
+  - dash: {fileID: 8300000, guid: 1cbc7b00981b5a84694aa14c1ebe6e06, type: 3}
+  - slide: {fileID: 8300000, guid: 434af739ddbf6294aa03ac54339ab2ca, type: 3}
+  - vault: {fileID: 8300000, guid: 1f0bb61f41a919f42b300290ffa175d0, type: 3}
+  - climbLadder: {fileID: 8300000, guid: 96afea212f20aa042875ec269aab355f, type: 3}
+  - sprint: {fileID: 8300000, guid: dc618affc94feb94bbc849f88f9c137b, type: 3}
+  - death: {fileID: 8300000, guid: 9a07937d38b106944a8ccf323cc8024c, type: 3}
+  - shoot: {fileID: 8300000, guid: 047ca355c54f9b94db7f68344b71b65f, type: 3}
+  - reload: {fileID: 8300000, guid: b1be12af1088349418f732a56f5b6cb6, type: 3}
+  - grenadeThrow: {fileID: 8300000, guid: 79a1f145827140e4eba156f2a1c14ad8, type: 3}
+  - grenadeExplosion: {fileID: 8300000, guid: 30e87802aef3b354498fd99ae13af264, type: 3}
+  - bulletHit: {fileID: 8300000, guid: 8f4ed785aa8cac54a84b697cea1aa12d, type: 3}
+  - bulletImpact: {fileID: 8300000, guid: a94ab72592b340f4da634a511c5bc28e, type: 3}
+  - wallBreak: {fileID: 8300000, guid: c73531230897417439242f7a2ff994ff, type: 3}
+  - menuSelect: {fileID: 8300000, guid: 922da2dbf691e404094a24f55b5d01d4, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
