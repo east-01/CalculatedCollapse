@@ -2764,6 +2764,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4468519549282688}
   - component: {fileID: 95812470430208240}
+  - component: {fileID: -6421766596826634979}
+  - component: {fileID: -7660960678655171412}
   m_Layer: 0
   m_Name: Robot_Soldier_Blue
   m_TagString: Untagged
@@ -2807,10 +2809,35 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 6ea6bae0ec3f0884085e082ea2e08f37, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
+--- !u!114 &-6421766596826634979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997645269869836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec431d67df016524abfefbbe1f6c9fa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 8554514546108795878, guid: 227e3526d52952f48b31e3d980aeb7bd, type: 3}
+--- !u!114 &-7660960678655171412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997645269869836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 011e55be6d912224c90dce776a7eada5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
