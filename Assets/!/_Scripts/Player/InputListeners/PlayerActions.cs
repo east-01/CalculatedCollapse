@@ -14,6 +14,7 @@ public class PlayerActions : MonoBehaviour, IInputListener
 {
     private Player player;
     private NetworkedAudioController audioController;
+    public Camera fpsCam;
 
     private void Awake()
     {
@@ -24,11 +25,39 @@ public class PlayerActions : MonoBehaviour, IInputListener
     public void InputEvent(InputAction.CallbackContext context)
     {
         switch(context.action.name) {
-            case "":
-
+            case "Interact":
+                TryInteract();
                 break;
         }
     }
+    
+    private void TryInteract()
+    {
+        
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning("Main camera not found.");
+            return;
+        }
+
+        Ray ray = fpsCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+        if (Physics.Raycast(ray, out RaycastHit hit, 3f))
+        {
+            Debug.Log($"Ray hit: {hit.collider.name} with tag: {hit.collider.tag}");
+            if (hit.collider.CompareTag("Destructible"))
+            {
+                WallInteraction wall = hit.collider.GetComponent<WallInteraction>();
+                if (wall != null && wall.IsSpawned)
+                    wall.Interact();
+            }
+        }
+        else
+        {
+            Debug.Log("Raycast hit nothing.");
+        }
+    }
+
 
     public void InputPoll(InputAction action) {}
 
