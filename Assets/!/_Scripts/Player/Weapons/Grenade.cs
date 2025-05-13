@@ -10,7 +10,7 @@ public class Grenade : Weapon
     bool hasExploded = false;
 
     //Audio Manager
-    private AudioManager audioManager;
+    //private AudioManager audioManager;
 
     void Start()
     {
