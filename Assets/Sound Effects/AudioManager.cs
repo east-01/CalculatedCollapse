@@ -36,7 +36,7 @@ public class AudioManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    void PlaySound(AudioClip clip)
+    public void PlaySound(AudioClip clip)
     {
         if (clip != null)
         {
