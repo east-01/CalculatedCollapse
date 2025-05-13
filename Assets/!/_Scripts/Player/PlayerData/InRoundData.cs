@@ -18,4 +18,16 @@ public class InRoundData : PlayerDataClass
     }
 
     public static InRoundData CreateDefault() => new(1, 0, "default");
+
+    public bool IsAlive => health > 0f;
+
+    public void TakeDamage(float amount)
+    {
+        health = UnityEngine.Mathf.Clamp01(health - amount);
+    }
+
+    public void ResetHealth()
+    {
+        health = 1f;
+    }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections; 
 
 public class Gun : Weapon
 {
@@ -11,6 +12,7 @@ public class Gun : Weapon
     public GameObject impactEffect;
 
     private float nextTimeToFire = 0f;
+    private bool isReloading = false;
 
     void Start()
     {
@@ -36,8 +38,17 @@ public class Gun : Weapon
 
     void Reload()
     {
+        if (!isReloading)
+            StartCoroutine(ReloadCoroutine());
+    }
+
+    private IEnumerator ReloadCoroutine()
+    {
+        isReloading = true;
         Debug.Log("Reloading...");
+        yield return new WaitForSeconds(1.3f);
         Uses = MaxUses;
+        isReloading = false;
     }
 
     void Shoot()

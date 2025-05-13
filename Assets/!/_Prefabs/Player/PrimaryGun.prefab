@@ -341,14 +341,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ee4fc5b9324d64788be5223f342825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxUses: 10
-  ReloadTime: 1
-  UseRate: 0.06666667
+  MaxUses: 12
+  ReloadTime: 1.5
+  UseRate: 0.3
   uiImage: {fileID: 21300000, guid: 6fb45180eeb44ee479e35771b5e3fdc1, type: 3}
-  damage: 10
-  range: 100
-  impactForce: 30
-  fpsCam: {fileID: 0}
+  damage: 15
+  range: 50
+  impactForce: 20
+  fpsCam: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   muzzleFlash: {fileID: 0}
   impactEffect: {fileID: 0}
 --- !u!1 &2482988364650893851
@@ -1040,14 +1040,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ee4fc5b9324d64788be5223f342825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxUses: 10
-  ReloadTime: 1
-  UseRate: 0.06666667
+  MaxUses: 30
+  ReloadTime: 2
+  UseRate: 0.1
   uiImage: {fileID: 21300000, guid: 13b82d8cac9a8424bb23eaacf34439c0, type: 3}
   damage: 10
   range: 100
   impactForce: 30
-  fpsCam: {fileID: 0}
+  fpsCam: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   muzzleFlash: {fileID: 0}
   impactEffect: {fileID: 0}
 --- !u!1 &7555855841833342772
@@ -1406,9 +1406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0fac1adb019892459954d7d9d9fa258, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxUses: 10
-  ReloadTime: 1
-  UseRate: 0.06666667
+  MaxUses: 1
+  ReloadTime: 3
+  UseRate: 1
   uiImage: {fileID: 21300000, guid: a86570d3a1013e0438818803e45c20b6, type: 3}
   explosionRadius: 5
   explosionForce: 700
