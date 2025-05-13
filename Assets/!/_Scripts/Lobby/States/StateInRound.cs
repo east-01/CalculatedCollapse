@@ -18,6 +18,9 @@ public class StateInRound : LobbyState
     public StateInRound(GameLobby gameLobby) : base(gameLobby) 
     {
         SpawnPlayers();
+
+        // Reset the walls
+        WallInteraction.ResetAllWalls();
     }
 
     public override LobbyState CheckForStateChange()

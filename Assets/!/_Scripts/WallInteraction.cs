@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FishNet.Object;
 using UnityEngine;
 
@@ -5,21 +6,32 @@ public class WallInteraction : NetworkBehaviour
 {
     [SerializeField] private Collider wallCollider;
     [SerializeField] private Renderer wallRenderer;
+    [SerializeField] private bool isDisableable = true;
+
+    // Keeps track of all destructible walls, used for resetting on new rounds
+    private static List<WallInteraction> allDestructibleWalls = new();
 
     private bool isDisabled = false;
 
+
+    private void Awake() 
+    {
+        if(!allDestructibleWalls.Contains(this))
+        {
+            allDestructibleWalls.Add(this);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        allDestructibleWalls.Remove(this);
+    }
+
     /// Called by a client to request the wall be disabled.
-    /// Must be marked as RequireOwnership = false if wall isn't client-owned.
     [ServerRpc(RequireOwnership = false)]
     public void Interact()
     {
-        Debug.Log("✅ Interact RPC called on server!");
-
-        if (isDisabled)
-        {
-            Debug.Log("⚠️ Wall already disabled.");
-            return;
-        }
+        if (isDisabled || !isDisableable) return;
 
         isDisabled = true;
 
@@ -40,12 +52,33 @@ public class WallInteraction : NetworkBehaviour
     /// Disables/enables the wall collider and visuals.
     private void SetWallState(bool enabled)
     {
-        Debug.Log($"🔧 SetWallState: {(enabled ? "ENABLED" : "DISABLED")}");
-
         if (wallCollider != null)
             wallCollider.enabled = enabled;
 
         if (wallRenderer != null)
             wallRenderer.enabled = enabled;
+    }
+
+    // Reset all walls used for resetting the walls at the beginning of each round
+    [Server]
+    public static void ResetAllWalls()
+    {
+        foreach (WallInteraction wall in allDestructibleWalls)
+        {
+            wall.isDisabled = false;
+            wall.isDisableable = true;
+            wall.SetWallState(true);
+            wall.SetWallStateObservers(true);
+        }
+    }
+
+    // Makes it so that the walls cant be disabled after the round starts
+    [Server]
+    public static void LockAllWalls()
+    {
+        foreach (WallInteraction wall in allDestructibleWalls)
+        {
+            wall.isDisableable = false;
+        }
     }
 }
