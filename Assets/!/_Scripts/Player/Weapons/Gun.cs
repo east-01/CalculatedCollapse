@@ -14,6 +14,9 @@ public class Gun : Weapon
     private float nextTimeToFire = 0f;
     private bool isReloading = false;
 
+    //Audio Manager
+    //private AudioManager audioManager;
+
     void Start()
     {
         Uses = MaxUses;
@@ -38,6 +41,7 @@ public class Gun : Weapon
 
     void Reload()
     {
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.reload);
         if (!isReloading)
             StartCoroutine(ReloadCoroutine());
     }
@@ -53,6 +57,7 @@ public class Gun : Weapon
 
     void Shoot()
     {
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.shoot);
         Uses--;
 
         if (muzzleFlash != null)
