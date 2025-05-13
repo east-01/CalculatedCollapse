@@ -92,20 +92,29 @@ public class PlayerObjectManager : NetworkBehaviour
             if(playersObjects.ContainsKey(uid))
                 continue;
 
-            Player player = GetComponent<GameplayManager>().GameplayScene.GetRootGameObjects()
+            IEnumerable<Player> playerOptions = GetComponent<GameplayManager>().GameplayScene.GetRootGameObjects()
             .Where(go => go.GetComponent<Player>() != null)
             .Select(go => go.GetComponent<Player>())
-            .FirstOrDefault(player => player.uid.Value == uid);
+            .Where(player => player.uid.Value == uid);
+
+            Player player = null;
 
             // Failed to find player, spawn one if we're the server
-            if(player == default || player == null) {
+            if(playerOptions.Count() == 0) {
                 if(InstanceFinder.IsServerStarted) {
                     PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
                     NetworkIdentifierData nid = pd.GetData<NetworkIdentifierData>();
                     player = SpawnPlayer(nid.GetNetworkConnection(), uid);
                 } else
                     continue; // Clients will wait for their player to be spawned by the server
+            } else if(playerOptions.Count() >= 1) {
+                if(playerOptions.Count() > 1)
+                    Debug.LogError("More than one suitable option for connecting player! Connecting first available option.");
+
+                player = playerOptions.ToArray()[0];
             }
+
+            BLog.Highlight($"Making connection for {uid} got: {player} (is def {player==default})");
 
             playersObjects.Add(uid, player);
             // The player won't recieve PlayerConnectedEvent, they subscribe to it after it's called.

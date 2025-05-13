@@ -27,6 +27,9 @@ public class GunDisplay : MonoBehaviour
 
     private void Update() 
     {
+        if(ws == null)
+            return;
+            
         Weapon weapon = ws.GetWeapon();
         ammoText.text = $"{weapon.Uses} / {weapon.MaxUses}";
         gunNameText.text = weapon.name;

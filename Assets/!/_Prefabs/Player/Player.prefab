@@ -306,12 +306,22 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 1450876365604900663}
   uidReadout: 
   camera: {fileID: 1457892827986241266}
-  activeBehaviours:
-  - {fileID: 8554514546108795878}
-  - {fileID: 3254641920470416100}
-  - {fileID: 7601814230229611789}
-  activeGameObjects:
-  - {fileID: 8630927277330227509}
+  attachSettings:
+  - obj: {fileID: 8554514546108795878}
+    behaviour: 1
+  - obj: {fileID: 3254641920470416100}
+    behaviour: 1
+  - obj: {fileID: 7601814230229611789}
+    behaviour: 1
+  - obj: {fileID: 1408759237458616525}
+    behaviour: 0
+  - obj: {fileID: 8630927277330227509}
+    behaviour: 0
+  - obj: {fileID: 914218507837894209}
+    behaviour: 0
+  - obj: {fileID: 43330285}
+    behaviour: 2
+  isPaused: 0
 --- !u!114 &4172409528695446178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -991,6 +1001,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5056558041594089104, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   m_PrefabInstance: {fileID: 5528164132361463442}
   m_PrefabAsset: {fileID: 0}
+--- !u!81 &914218507837894209 stripped
+AudioListener:
+  m_CorrespondingSourceObject: {fileID: 4618458042474039507, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1408759237458616525 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6862097068055365215, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+  m_PrefabInstance: {fileID: 5528164132361463442}
+  m_PrefabAsset: {fileID: 0}
 --- !u!20 &1457892827986241266 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
@@ -1001,7 +1021,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7033835814803872886, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   m_PrefabInstance: {fileID: 5528164132361463442}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1408759237458616525}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 155d1fe456343134991ae32ae7369829, type: 3}
