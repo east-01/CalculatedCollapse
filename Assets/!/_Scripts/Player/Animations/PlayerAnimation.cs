@@ -8,6 +8,9 @@ public class PlayerAnimation : MonoBehaviour
     private RagdollActivator ragdollActivator;
     private Vector3 lastPosition;
 
+    //Audio Manager
+    //private AudioManager audioManager; //access audio
+
     [SerializeField] private PlayerMovement playerMovement;
 
     void Start()
@@ -71,6 +74,7 @@ public class PlayerAnimation : MonoBehaviour
         if (state.IsName("Standing_React_Death_Backward")) return;
 
         animator.SetTrigger("IsDead");
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.death); //play death sound
         StartCoroutine(DeathSequence());
     }
 
