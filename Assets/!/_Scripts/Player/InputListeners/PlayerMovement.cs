@@ -8,6 +8,9 @@ using System;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour, IInputListener
 {
+    //Audio Manager
+   // private AudioManager audioManager;
+
     private NetworkedAudioController audioController;
     private CharacterController characterController;
 
@@ -192,6 +195,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         {
             if (!climbing) climbing = true; // start climbing
             Vector3 climbDirection = (Vector3.up + orientation.forward * 0.2f).normalized; // forward nudge to "walk into" ladder
+            //AudioManager.Instance.PlaySound(AudioManager.Instance.climbLadder);
             characterController.Move(climbDirection * climbSpeed * Time.deltaTime);
         }
         else if (climbing)
@@ -327,6 +331,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         isSliding = true;
         slideTimer = 0f;
         slideDirection = transform.forward;
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.slide);
 
         isCrouching = true;
         StartCoroutine(AdjustCrouch(crouchHeight, crouchCenter));
@@ -394,6 +399,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     {
         isVaulting = true;
         characterController.enabled = false;
+        AudioManager.Instance.PlaySound(AudioManager.Instance.vault);
 
         Vector3 start = transform.position;
         float elapsed = 0f;
@@ -474,13 +480,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
             dashDirection = transform.forward;
 
         float elapsed = 0f;
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.dash);
         while (elapsed < dashDuration)
         {
             characterController.Move(dashDirection * dashForce * Time.deltaTime);
             elapsed += Time.deltaTime;
             yield return null;
         }
-
         isDashing = false;
     }
 

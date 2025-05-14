@@ -9,6 +9,9 @@ public class Grenade : Weapon
     float countdown;
     bool hasExploded = false;
 
+    //Audio Manager
+    //private AudioManager audioManager;
+
     void Start()
     {
         countdown = UseRate;
@@ -26,6 +29,9 @@ public class Grenade : Weapon
 
     void Explode()
     {
+        //Play explosion sound
+        //AudioManager.Instance.PlaySound(AudioManager.Instance.grenadeExplosion);
+        
         // Show visual effect
         if (explosionEffect != null)
         {
