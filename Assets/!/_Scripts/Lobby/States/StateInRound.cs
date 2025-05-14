@@ -22,6 +22,10 @@ public class StateInRound : LobbyState
         // Reset the walls
         WallInteraction.ResetAllWalls();
         // WallInteraction.LockAllWalls();
+
+        GameObject startingWall = GameObject.FindWithTag("Starting Wall");
+        GameObject.Destroy(startingWall); 
+
     }
 
     public override LobbyState CheckForStateChange()
