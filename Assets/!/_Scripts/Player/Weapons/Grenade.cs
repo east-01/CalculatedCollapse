@@ -1,4 +1,4 @@
-using UnityEngine;
+/* using UnityEngine;
 
 public class Grenade : Weapon
 {
@@ -42,10 +42,10 @@ public class Grenade : Weapon
                 rb.AddExplosionForce(explosionForce, transform.position, explosionRadius);
             }
 
-            Target target = nearbyObject.GetComponent<Target>();
+            // Target target = nearbyObject.GetComponent<Target>();
             if (target != null)
             {
-                target.TakeDamage(50f); 
+                target.TakeDamage(50f);
             }
         }
 
@@ -53,3 +53,4 @@ public class Grenade : Weapon
         Destroy(gameObject);
     }
 }
+*/
