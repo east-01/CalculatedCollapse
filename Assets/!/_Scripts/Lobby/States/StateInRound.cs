@@ -21,6 +21,7 @@ public class StateInRound : LobbyState
 
         // Reset the walls
         WallInteraction.ResetAllWalls();
+        // WallInteraction.LockAllWalls();
     }
 
     public override LobbyState CheckForStateChange()
