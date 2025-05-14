@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections; 
+using System.Collections;
 
 public class Gun : Weapon
 {
@@ -24,14 +24,12 @@ public class Gun : Weapon
 
     void Update()
     {
-        // If out of ammo, reload and return early
         if (Uses <= 0)
         {
             Reload();
             return;
         }
 
-        // Handle shooting if Fire1 is pressed and fireRate delay passed
         if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + UseRate;
@@ -49,7 +47,7 @@ public class Gun : Weapon
     private IEnumerator ReloadCoroutine()
     {
         isReloading = true;
-        Debug.Log("Reloading...");
+        Debug.Log("Cooldown...");
         yield return new WaitForSeconds(1.3f);
         Uses = MaxUses;
         isReloading = false;
@@ -68,10 +66,13 @@ public class Gun : Weapon
         {
             Debug.Log(hit.transform.name);
 
-            Target target = hit.transform.GetComponent<Target>();
-            if (target != null)
+            if (hit.transform.CompareTag("Player"))
             {
-                target.TakeDamage(damage);
+                InRoundData playerData = hit.transform.GetComponent<InRoundData>();
+                if (playerData != null)
+                {
+                    playerData.TakeDamage(damage);
+                }
             }
 
             if (impactEffect != null)
