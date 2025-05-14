@@ -33,14 +33,6 @@ public class PlayerActions : MonoBehaviour, IInputListener
     
     private void TryInteract()
     {
-        
-        Camera cam = Camera.main;
-        if (cam == null)
-        {
-            Debug.LogWarning("Main camera not found.");
-            return;
-        }
-
         Ray ray = fpsCam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         if (Physics.Raycast(ray, out RaycastHit hit, 3f))
         {

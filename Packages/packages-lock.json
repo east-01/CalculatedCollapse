@@ -221,7 +221,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "47c27153b86802814e451bcf01a66fcf07df9bbb"
+      "hash": "9eda99464414ebc8d166c1709fe0c739306f72e6"
     },
     "net.emullen.playermgmt": {
       "version": "https://github.com/east-01/net.emullen.playermgmt.git",
