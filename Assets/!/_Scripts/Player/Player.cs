@@ -14,7 +14,7 @@ using UnityEngine;
 ///   ConnectPlayer() call when the PlayerManager sends a LocalPlayer.
 /// </summary>
 [RequireComponent(typeof(PlayerInputManager))]
-public class Player : NetworkBehaviour, IS3
+public class Player : NetworkBehaviour, IS3, IDamageable
 {
     public readonly SyncVar<string> uid = new();
 #if UNITY_EDITOR
@@ -224,4 +224,21 @@ public class Player : NetworkBehaviour, IS3
     /// <param name="rotation">The target rotation.</param>
     [TargetRpc]
     public void TargetRPCSetPositionAndRotation(NetworkConnection connection, Vector3 position, Quaternion rotation) => SetPositionAndRotation(position, rotation);
+    public float MaxDamage = 100f;
+    public void TakeDamage(float damage)
+    {
+        float damage01 = damage / MaxDamage;
+
+        PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
+        InRoundData ird = pd.GetData<InRoundData>();
+        ird.health = Mathf.Clamp01(ird.health - damage01);
+        pd.SetData(ird);
+
+        HealthBar hb = GetComponent<HealthBar>();
+        if (hb != null)
+            hb.Value = ird.health;
+
+        if (!ird.IsAlive)
+            Debug.Log($"{uid.Value} has died.");
+    }
 }

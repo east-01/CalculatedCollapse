@@ -1,11 +1,23 @@
 using UnityEngine;
+using FishNet.Object;
 
-public class Weapon : MonoBehaviour 
+public class Weapon : NetworkBehaviour
 {
     public int MaxUses = 10;
-    public int Uses { get; protected set; }
     public float ReloadTime = 1f;
-    public float UseRate = 1 / 15f; // Time in seconds per use
+    public float UseRate = 1f / 15f;
 
     public Sprite uiImage;
+
+    public int Uses { get; protected set; }
+
+    [ServerRpc]
+    protected void Cmd_DealDamage(NetworkObject target, float damage)
+    {
+        IDamageable damageable = target.GetComponent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.TakeDamage(damage);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using FishNet.Object;
 
 public class Gun : Weapon
 {
@@ -21,12 +22,16 @@ public class Gun : Weapon
 
     void Update()
     {
+        if (!IsOwner) return;
+
+        // If out of ammo, reload and return early
         if (Uses <= 0)
         {
             Reload();
             return;
         }
 
+         // Handle shooting if Fire1 is pressed and fireRate delay passed
         if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + UseRate;
@@ -43,8 +48,8 @@ public class Gun : Weapon
     private IEnumerator ReloadCoroutine()
     {
         isReloading = true;
-        Debug.Log("Cooldown...");
-        yield return new WaitForSeconds(1.3f);
+        Debug.Log("Reloading...");
+        yield return new WaitForSeconds(ReloadTime);
         Uses = MaxUses;
         isReloading = false;
     }
@@ -61,13 +66,12 @@ public class Gun : Weapon
         {
             Debug.Log(hit.transform.name);
 
-            if (hit.transform.CompareTag("Player"))
+            NetworkObject targetNetObj = hit.transform.GetComponent<NetworkObject>();
+            IDamageable damageable = hit.transform.GetComponent<IDamageable>();
+
+            if (damageable != null && targetNetObj != null)
             {
-                InRoundData playerData = hit.transform.GetComponent<InRoundData>();
-                if (playerData != null)
-                {
-                    playerData.TakeDamage(damage);
-                }
+                Cmd_DealDamage(targetNetObj, damage); 
             }
 
             if (impactEffect != null)
