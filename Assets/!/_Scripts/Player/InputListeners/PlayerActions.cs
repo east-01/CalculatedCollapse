@@ -41,7 +41,10 @@ public class PlayerActions : MonoBehaviour, IInputListener
             {
                 WallInteraction wall = hit.collider.GetComponent<WallInteraction>();
                 if (wall != null && wall.IsSpawned)
+                {
+                    
                     wall.Interact();
+                }
             }
         }
         else

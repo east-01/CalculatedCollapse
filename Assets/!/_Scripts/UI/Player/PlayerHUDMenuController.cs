@@ -36,6 +36,7 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     private HealthBar healthBar;
     [SerializeField]
     private Crosshair crosshair;
+    public Crosshair Crosshair => crosshair;
 
     private Player player;
     private float lobbyUpdateTime;
@@ -86,11 +87,6 @@ public class PlayerHUDMenuController : MenuController, IInputListener
 
         float timeLeft = GetTimeLeftInRound();
         timerText.text = timeLeft > 0 ? FormatTime((int)timeLeft) : "--";
-
-        if(Input.GetKeyDown(KeyCode.H))
-            crosshair.ShowHitmarker();
-
-        // TODO: Update gun icon
     }
 
     protected override void Opened()

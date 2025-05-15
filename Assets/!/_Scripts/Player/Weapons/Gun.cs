@@ -26,15 +26,24 @@ public class Gun : Weapon
 
     // Internal control variables
     private float nextTimeToFire = 0f;
-    private bool isReloading = false;
+    public bool IsReloading { get; private set; } = false;
 
     private NetworkedAudioController audioController;
+    private Player player;
+    private PlayerHUDMenuController hud;
 
     private void Start()
     {
         // Set initial ammo and get reference to audio controller
         Uses = MaxUses;
         audioController = GetComponentInParent<NetworkedAudioController>();
+        player = GetComponentInParent<Player>();
+        if (player == null)
+        {
+            Debug.LogError("Failed to get player in parent. It is assumed that the PlayerHUDMenuController is on a canvas that's a child of a Player GameObject.");
+            return;
+        }
+        hud = player.GetComponentInChildren<PlayerHUDMenuController>();
     }
 
     private void Update()
@@ -46,8 +55,7 @@ public class Gun : Weapon
             return;
         }
 
-        // Handle shooting input and fire rate cooldown
-        if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
+        if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + UseRate;
             Shoot();
@@ -57,29 +65,30 @@ public class Gun : Weapon
     // Begins reloading if not already reloading
     private void Reload()
     {
-        if (!isReloading)
+        if (!IsReloading)
             StartCoroutine(ReloadCoroutine());
     }
 
     // Plays reload audio and waits before restoring ammo
     private IEnumerator ReloadCoroutine()
     {
-        isReloading = true;
+        IsReloading = true;
         Debug.Log("Reloading...");
-        audioController?.PlaySound(reloadSoundID);
+
+        audioController.PlaySound(reloadSoundID);
 
         yield return new WaitForSeconds(ReloadTime);
 
         Uses = MaxUses;
-        isReloading = false;
+        IsReloading = false;
     }
 
     // Handles shooting logic, effects, and damage raycast
     private void Shoot()
     {
         Uses--;
-        audioController?.PlaySound(shootSoundID);
-        muzzleFlash?.Play();
+        audioController.PlaySound(shootSoundID);
+        muzzleFlash.Play();
         ApplyRecoil();
 
         if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out RaycastHit hit, range))
@@ -90,10 +99,11 @@ public class Gun : Weapon
             IDamageable damageable = hit.transform.GetComponent<IDamageable>();
 
             if (damageable != null && targetNetObj != null)
+            {
+                audioController.PlaySound("hitmarker", 1, false);
+                hud.Crosshair.ShowHitmarker();
                 Cmd_DealDamage(targetNetObj, damage);
 
-            if (impactEffect != null)
-            {
                 GameObject impactGO = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
                 Destroy(impactGO, 1f);
             }

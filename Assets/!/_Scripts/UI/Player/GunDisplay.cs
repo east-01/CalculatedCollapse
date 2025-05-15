@@ -31,7 +31,12 @@ public class GunDisplay : MonoBehaviour
             return;
             
         Weapon weapon = ws.GetWeapon();
-        ammoText.text = $"{weapon.Uses} / {weapon.MaxUses}";
+        
+        string ammoStr = $"{weapon.Uses} / {weapon.MaxUses}";
+        if (weapon is Gun && (weapon as Gun).IsReloading)
+            ammoStr = "Reloading...";
+
+        ammoText.text = ammoStr;
         gunNameText.text = weapon.name;
         gunImage.sprite = weapon.uiImage;
     }

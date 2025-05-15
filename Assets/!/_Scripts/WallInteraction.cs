@@ -8,15 +8,19 @@ public class WallInteraction : NetworkBehaviour
     [SerializeField] private Renderer wallRenderer;
     [SerializeField] private bool isDisableable = true;
 
+    private NetworkedAudioController audioController;
+
     // Keeps track of all destructible walls, used for resetting on new rounds
     private static List<WallInteraction> allDestructibleWalls = new();
 
     private bool isDisabled = false;
 
 
-    private void Awake() 
+    private void Awake()
     {
-        if(!allDestructibleWalls.Contains(this))
+        audioController = GetComponent<NetworkedAudioController>();
+
+        if (!allDestructibleWalls.Contains(this))
         {
             allDestructibleWalls.Add(this);
         }
@@ -32,6 +36,8 @@ public class WallInteraction : NetworkBehaviour
     public void Interact()
     {
         if (isDisabled || !isDisableable) return;
+
+        audioController.PlaySound("destroy", 0.3f);
 
         isDisabled = true;
 
