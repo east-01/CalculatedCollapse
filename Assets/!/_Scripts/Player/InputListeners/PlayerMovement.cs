@@ -72,6 +72,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     public float zoomFOV = 40f;
     public float zoomTime = 0.1f;
 
+    [Header("Landing Camera Dip")]
+    public float landingDipAmount = 0.2f;
+    public float landingDipSpeed = 10f;
+    public float landingRecoverySpeed = 6f;
+
+    private float landingDipOffset = 0f;
+
     // ------------------ CROUCH ------------------
     [Header("Crouch Settings")]
     public float crouchHeight = 1.2f;
@@ -89,6 +96,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float fallStartY;
     private float minFallDistance = 1f;
     public event Action OnJumpPerformed; // event is invoked when jumping
+
+    [Header("Jump Forgiveness")] // coyote time
+    public float coyoteTime = 0.2f;
+    private float lastGroundedTime;
 
     // ------------------ LEAN ------------------
     [Header("Player Lean Settings")]
@@ -190,6 +201,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
         float targetPitch = isSliding ? slidePitchAngle : 0f;
         currentSlidePitch = Mathf.Lerp(currentSlidePitch, targetPitch, Time.deltaTime * slidePitchSpeed);
+
+        landingDipOffset = Mathf.Lerp(landingDipOffset, 0f, Time.deltaTime * landingRecoverySpeed);
     }
 
     private void HandleInput()
@@ -347,7 +360,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         if (cameraAttachPoint == null) return;
 
         Vector3 current = cameraAttachPoint.localPosition;
-        float targetY = defaultYPos + desiredCameraY;
+        float targetY = defaultYPos + desiredCameraY - landingDipOffset;
         float newY = Mathf.Lerp(current.y, targetY, Time.deltaTime * 10f); // smooth transition
         cameraAttachPoint.localPosition = new Vector3(current.x, newY, current.z);
     }
@@ -358,9 +371,14 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         bool grounded = characterController.isGrounded;
 
         if (grounded)
+        {
             HandleGroundedJump();
+            lastGroundedTime = Time.time;
+        }
         else 
+        {
             HandleAirborneMovement();
+        }
 
         UpdateFallState(grounded);
     }
@@ -369,8 +387,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     {
         verticalVelocity = -1f;
         bool wantsToJump = jumpInput || (Time.time - lastJumpPressTime <= vaultBufferTime);
+        bool coyoteJump = Time.time - lastGroundedTime <= coyoteTime;
 
-        if (wantsToJump)
+        if (wantsToJump && coyoteJump)
         {
             if (!isVaulting && DetectVaultable(out Vector3 target))
                 StartCoroutine(VaultRoutine(target));
@@ -405,7 +424,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
             float fallDistance = fallStartY - transform.position.y;
 
             if (fallDistance > minFallDistance || jumpedFromGround)
+            {
                 GetComponentInChildren<PlayerAudio>()?.PlayLandingSound();
+                landingDipOffset = landingDipAmount;
+            }
 
             jumpedFromGround = false;
         }
