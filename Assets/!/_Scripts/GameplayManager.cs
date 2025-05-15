@@ -51,7 +51,7 @@ public class GameplayManager : NetworkBehaviour
 
     private void Update()
     {
-        if (LobbyManager.Instance.LobbyData.HasValue && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StateInRound).ToString())
+        if (LobbyManager.Instance.LobbyData.HasValue && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StateInRound).ToString() && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StatePostRound).ToString())
             ResetPlayerHealth();
     }
 

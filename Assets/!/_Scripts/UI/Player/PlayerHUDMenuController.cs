@@ -37,6 +37,8 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     [SerializeField]
     private Crosshair crosshair;
     public Crosshair Crosshair => crosshair;
+    [SerializeField]
+    private GameObject dead;
 
     private Player player;
     private float lobbyUpdateTime;
@@ -61,15 +63,16 @@ public class PlayerHUDMenuController : MenuController, IInputListener
 
     private void Update()
     {
-        if(!IsOpen)
+        if (!IsOpen)
             return;
 
-        if(player == null && player.uid.Value != null)
+        if (player == null && player.uid.Value != null)
             return;
 
         // Check if we're in lobby and update visibility
         LobbyData? lobbyNullable = LobbyManager.Instance.LobbyData;
-        if(!lobbyNullable.HasValue) {
+        if (!lobbyNullable.HasValue)
+        {
             UpdateVisibility(null);
             return;
         }
@@ -87,6 +90,8 @@ public class PlayerHUDMenuController : MenuController, IInputListener
 
         float timeLeft = GetTimeLeftInRound();
         timerText.text = timeLeft > 0 ? FormatTime((int)timeLeft) : "--";
+
+        dead.SetActive(data.health <= 0);
     }
 
     protected override void Opened()

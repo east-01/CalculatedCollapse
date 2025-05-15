@@ -41,6 +41,15 @@ public class StatePostRound : LobbyState
             fpsData.wins += 1;
             pd.SetData(fpsData);
 
+            gameLobby.Players.ToList().ForEach(playerUID => {
+                PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(playerUID);
+                pd.EnsureFPSData();
+
+                InRoundData data = pd.GetData<InRoundData>();
+                data.wins = 0;
+                pd.SetData(data);
+            });
+
             return new StateUnloadScene(gameLobby);
         } else
             return new StatePrepareRound(gameLobby);

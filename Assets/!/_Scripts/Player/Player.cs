@@ -33,6 +33,8 @@ public class Player : NetworkBehaviour, IS3, IDamageable
 
     [SerializeField]
     private new Camera camera;
+    [SerializeField]
+    private GameObject playerModel;
 
     /// <summary>
     /// A list of action settings to be parsed on awake.
@@ -70,27 +72,37 @@ public class Player : NetworkBehaviour, IS3, IDamageable
             return;
 
     }
-#endregion
+    #endregion
 
-    private void Update() 
+    private void Update()
     {
 #if UNITY_EDITOR
         uidReadout = uid.Value;
 #endif
 
         string uidOut = uid.Value != null ? uid.Value[1..7] : "nouid";
-        if(localPlayer != null)
+        if (localPlayer != null)
             uidOut += $" local{localPlayer.Input.playerIndex}";
         gameObject.name = $"Player ({uidOut})";
 
         // Safely subscribe to the GameplayManager singleton
-        if(gameObject.scene.name == "GameplayScene") {
+        if (gameObject.scene.name == "GameplayScene")
+        {
             SceneLookupData lookupData = gameObject.scene.GetSceneLookupData();
 
-            if(!SceneSingletons.IsSubscribed(this, lookupData, typeof(GameplayManager))) {
+            if (!SceneSingletons.IsSubscribed(this, lookupData, typeof(GameplayManager)))
+            {
                 SceneSingletons.SubscribeToSingleton(this, lookupData, typeof(GameplayManager));
             }
         }
+
+        if (uid.Value != null && PlayerDataRegistry.Instance.Contains(uid.Value))
+        {
+            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
+            pd.EnsureFPSData();
+            playerModel.SetActive(pd.GetData<InRoundData>().health > 0);
+        }
+
     }
 
     public void ConnectPlayer(string uuid, Player player) 
