@@ -1,14 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
-using EMullen.Core;
-using EMullen.Networking;
 using EMullen.Networking.Lobby;
-using EMullen.PlayerMgmt;
 using EMullen.SceneMgmt;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Managing.Scened;
-using UnityEditor.SearchService;
 
 /// <summary>
 /// StateUnloadScene faciliates the map scene unloading process.
