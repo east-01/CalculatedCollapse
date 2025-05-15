@@ -15,25 +15,22 @@ public class Gun : Weapon
     private float nextTimeToFire = 0f;
     private bool isReloading = false;
 
-    //Audio Manager
-    //private AudioManager audioManager;
+    private NetworkedAudioController audioController;
 
     void Start()
     {
         Uses = MaxUses;
+        audioController = GetComponentInParent<NetworkedAudioController>();
     }
 
     void Update()
     {
-
-        // If out of ammo, reload and return early
         if (Uses <= 0)
         {
             Reload();
             return;
         }
 
-         // Handle shooting if Fire1 is pressed and fireRate delay passed
         if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
         {
             nextTimeToFire = Time.time + UseRate;
@@ -43,7 +40,6 @@ public class Gun : Weapon
 
     void Reload()
     {
-        //AudioManager.Instance.PlaySound(AudioManager.Instance.reload);
         if (!isReloading)
             StartCoroutine(ReloadCoroutine());
     }
@@ -52,15 +48,20 @@ public class Gun : Weapon
     {
         isReloading = true;
         Debug.Log("Reloading...");
+
+        audioController?.PlaySound("reload");
+
         yield return new WaitForSeconds(ReloadTime);
+
         Uses = MaxUses;
         isReloading = false;
     }
 
     void Shoot()
     {
-        //AudioManager.Instance.PlaySound(AudioManager.Instance.shoot);
         Uses--;
+
+        audioController?.PlaySound("shoot");
 
         if (muzzleFlash != null)
             muzzleFlash.Play();

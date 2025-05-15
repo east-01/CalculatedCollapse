@@ -505,6 +505,10 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 1cbc7b00981b5a84694aa14c1ebe6e06, type: 3}
   - id: slide
     audioClip: {fileID: 8300000, guid: 434af739ddbf6294aa03ac54339ab2ca, type: 3}
+  - id: shoot
+    audioClip: {fileID: 8300000, guid: 047ca355c54f9b94db7f68344b71b65f, type: 3}
+  - id: reload
+    audioClip: {fileID: 8300000, guid: b1be12af1088349418f732a56f5b6cb6, type: 3}
 --- !u!143 &9139026534003978452
 CharacterController:
   m_ObjectHideFlags: 0
