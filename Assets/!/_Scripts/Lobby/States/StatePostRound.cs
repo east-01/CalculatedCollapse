@@ -3,6 +3,7 @@ using System.Linq;
 using EMullen.Core;
 using EMullen.Networking.Lobby;
 using EMullen.PlayerMgmt;
+using UnityEngine.InputSystem.LowLevel;
 
 /// <summary>
 /// StatePostRound is for after a player dies and the other player is still running around.
@@ -21,19 +22,12 @@ public class StatePostRound : LobbyState
     {
         this.winner = winner;
 
-        gameLobby.Players.ToList().ForEach(playerUID => {
-            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(playerUID);
-            pd.EnsureFPSData();
-
-            InRoundData data = pd.GetData<InRoundData>();
-            data.health = 1f;
-            pd.SetData(data);
-        });
+        (gameLobby as FPSLobby).GameplayManager.ResetPlayerHealth();
     }
 
     public override LobbyState CheckForStateChange()
     {
-        if(TimeInState < 1)
+        if(TimeInState < POST_ROUND_TIME)
             return null;
         
         PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(winner);

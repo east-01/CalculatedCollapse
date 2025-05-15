@@ -15,7 +15,8 @@ using UnityEngine;
 /// </summary>
 public class StateInRound : LobbyState
 {
-    public static readonly float ROUND_TIME = 60*3;
+    public static readonly float MIN_ROUND_TIME = 3f;
+    public static readonly float ROUND_TIME = 60 * 3;
 
     public StateInRound(GameLobby gameLobby) : base(gameLobby) 
     {
@@ -50,6 +51,9 @@ public class StateInRound : LobbyState
     {
         // No winner if player count is less than required players
         if(gameLobby.PlayerCount < FPSLobby.REQUIRED_PLAYERS)
+            return null;
+
+        if(TimeInState < MIN_ROUND_TIME)
             return null;
 
         string winnerUID = null;

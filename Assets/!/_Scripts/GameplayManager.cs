@@ -49,9 +49,10 @@ public class GameplayManager : NetworkBehaviour
         startingWall = GameObject.FindWithTag("Starting Wall");
     }
 
-    private void Update() 
+    private void Update()
     {
-          
+        if (LobbyManager.Instance.LobbyData.HasValue && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StateInRound).ToString())
+            ResetPlayerHealth();
     }
 
     public Transform GetSpawnPosition(string uid) 
@@ -85,11 +86,29 @@ public class GameplayManager : NetworkBehaviour
         return -1;
     }
 
+    public void ResetPlayerHealth()
+    {
+        if(Lobby == null)
+            return;
+
+        Lobby.Players.ToList().ForEach(playerUID => {
+            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(playerUID);
+            pd.EnsureFPSData();
+
+            InRoundData data = pd.GetData<InRoundData>();
+            data.health = 1f;
+            pd.SetData(data);
+        });
+    }
+
     private void LobbyManager_LobbyUpdatedEvent(string lobbyID, LobbyData newData, LobbyUpdateReason reason)
     {
-        if(newData.stateTypeString == typeof(StatePrepareRound).ToString()) {
+        if (newData.stateTypeString == typeof(StatePrepareRound).ToString())
+        {
             startingWall.SetActive(true);
-        } else if(newData.stateTypeString == typeof(StateInRound).ToString()) {
+        }
+        else if (newData.stateTypeString == typeof(StateInRound).ToString())
+        {
             startingWall.SetActive(false);
         }
     }
