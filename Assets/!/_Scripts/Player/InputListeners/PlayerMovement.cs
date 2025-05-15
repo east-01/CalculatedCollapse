@@ -75,13 +75,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
     // ------------------ CROUCH ------------------
     [Header("Crouch Settings")]
-    public float crouchHeight = -0.8f;
-    public float standHeight = 0f;
+    public float crouchHeight = 1.2f;
+    public float standHeight = 2.0f;
     public float crouchTime = 0.25f;
     private float desiredCameraY;
     public float crouchViewOffset = -0.8f; // update camera height
-    private Vector3 crouchCenter = new Vector3(0, 0.5f, 0);
-    private Vector3 standCenter = new Vector3(0, 0, 0);
+    private Vector3 standCenter = new Vector3(0, 1f, 0);
+    private Vector3 crouchCenter = new Vector3(0, 0.6f, 0);
 
     // ------------------ JUMP ------------------
     [Header("Jump Settings")]

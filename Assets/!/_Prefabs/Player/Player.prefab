@@ -406,9 +406,10 @@ MonoBehaviour:
   crouchBobAmount: 0.025
   zoomFOV: 40
   zoomTime: 0.1
-  crouchHeight: -0.8
-  standHeight: 0
+  crouchHeight: 1.2
+  standHeight: 2
   crouchTime: 0.25
+  crouchViewOffset: -0.8
   jumpForce: 8
   maxLeanAngle: 16
   leanSpeed: 5
