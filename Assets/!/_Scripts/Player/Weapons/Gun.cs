@@ -74,6 +74,7 @@ public class Gun : Weapon
     {
         IsReloading = true;
         Debug.Log("Reloading...");
+        // Debug.Log("Cooldown...");
 
         audioController.PlaySound(reloadSoundID);
 
@@ -98,15 +99,21 @@ public class Gun : Weapon
             NetworkObject targetNetObj = hit.transform.GetComponent<NetworkObject>();
             IDamageable damageable = hit.transform.GetComponent<IDamageable>();
 
-            if (damageable != null && targetNetObj != null)
+        if (hit.transform != null)
             {
-                audioController.PlaySound("hitmarker", 1, false);
-                hud.Crosshair.ShowHitmarker();
-                Cmd_DealDamage(targetNetObj, damage);
+                if (damageable != null && targetNetObj != null)
+                {
+                    audioController.PlaySound("hitmarker", 1, false);
+                    hud.Crosshair.ShowHitmarker();
+                    Cmd_DealDamage(targetNetObj, damage);
+                }
+
+                // Debug.Log("Instantiating impact effect at: " + hit.point);
 
                 GameObject impactGO = Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
                 Destroy(impactGO, 1f);
             }
+
         }
     }
 
