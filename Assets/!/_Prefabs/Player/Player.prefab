@@ -1025,6 +1025,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1457892827986241266}
     - target: {fileID: 4153083230826526058, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: recoilX
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4153083230826526058, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
+      propertyPath: recoilY
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4153083230826526058, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _networkObjectCache
       value: 
       objectReference: {fileID: 0}
