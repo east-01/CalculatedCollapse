@@ -117,6 +117,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private int currentDashes;
     private float lastDashTime;
 
+    [Header("Dash FOV Boost")]
+    public float dashFOV = 80f;
+    public float dashFOVDuration = 0.3f;
+
+    private bool isDashingFOV = false;
+    private float dashFOVTimer = 0f;
+
     // ------------------ SLIDING ------------------
     [Header("Sliding")]
     public float slideSpeed;
@@ -203,6 +210,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         currentSlidePitch = Mathf.Lerp(currentSlidePitch, targetPitch, Time.deltaTime * slidePitchSpeed);
 
         landingDipOffset = Mathf.Lerp(landingDipOffset, 0f, Time.deltaTime * landingRecoverySpeed);
+
+        if (isDashingFOV)
+        {
+            dashFOVTimer += Time.deltaTime;
+            if (dashFOVTimer >= dashFOVDuration)
+                isDashingFOV = false;
+        }
     }
 
     private void HandleInput()
@@ -342,14 +356,14 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
     private void UpdateFOV()
     {
-        float targetFOV;
+        float targetFOV = defaultFOV;
 
-        if (isSliding)
+        if (isDashingFOV)
+            targetFOV = dashFOV;
+        else if (isSliding)
             targetFOV = slideFOV;
         else if (zoomInput)
             targetFOV = zoomFOV;
-        else
-            targetFOV = defaultFOV;
         
         currentFOV = Mathf.Lerp(currentFOV, targetFOV, Time.deltaTime * slideFOVSpeed);
         playerCamera.fieldOfView = currentFOV;
@@ -586,6 +600,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private IEnumerator DashRoutine()
     {
         isDashing = true;
+        isDashingFOV = true;
+        dashFOVTimer = 0f;
         currentDashes--;
         lastDashTime = Time.time;
 
