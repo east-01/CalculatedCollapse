@@ -13,7 +13,7 @@ using EMullen.PlayerMgmt;
 public class StatePostRound : LobbyState
 {
     /// <summary> The time for transitions </summary>
-    public readonly float POST_ROUND_TIME = 1f;
+    public readonly float POST_ROUND_TIME = 5f;
 
     private string winner;
 
