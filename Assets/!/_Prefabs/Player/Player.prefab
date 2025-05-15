@@ -505,10 +505,14 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 1cbc7b00981b5a84694aa14c1ebe6e06, type: 3}
   - id: slide
     audioClip: {fileID: 8300000, guid: 434af739ddbf6294aa03ac54339ab2ca, type: 3}
-  - id: shoot
+  - id: shoot_rifle
     audioClip: {fileID: 8300000, guid: 0c908f037e8288940806bb417a68d1dd, type: 3}
-  - id: reload
+  - id: reload_rifle
     audioClip: {fileID: 8300000, guid: 5c1f72a73bab10a40842b4b0901fc86d, type: 3}
+  - id: shoot_pistol
+    audioClip: {fileID: 8300000, guid: 30997c4e485452b4697926b328525437, type: 3}
+  - id: reload_pistol
+    audioClip: {fileID: 8300000, guid: 4e1af692c66de084fbc5917ea659044b, type: 3}
 --- !u!143 &9139026534003978452
 CharacterController:
   m_ObjectHideFlags: 0

@@ -53,6 +53,8 @@ MonoBehaviour:
   damage: 15
   range: 50
   impactForce: 20
+  shootSoundID: shoot_pistol
+  reloadSoundID: reload_pistol
   fpsCam: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   muzzleFlash: {fileID: 9067230293030016328}
   impactEffect: {fileID: 1000011190285628, guid: beb3acff7ab73944fb8f470f24d74ed3, type: 3}
@@ -157,6 +159,8 @@ MonoBehaviour:
   damage: 10
   range: 100
   impactForce: 30
+  shootSoundID: shoot_rifle
+  reloadSoundID: reload_rifle
   fpsCam: {fileID: 6380617917662249056, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
   muzzleFlash: {fileID: 4969365386618342959}
   impactEffect: {fileID: 1000011190285628, guid: beb3acff7ab73944fb8f470f24d74ed3, type: 3}

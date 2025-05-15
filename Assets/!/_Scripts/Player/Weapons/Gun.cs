@@ -8,6 +8,9 @@ public class Gun : Weapon
     public float range = 100f;
     public float impactForce = 30f;
 
+    public string shootSoundID = "shoot_rifle";
+    public string reloadSoundID = "reload_rifle";
+
     public Camera fpsCam;
     public ParticleSystem muzzleFlash;
     public GameObject impactEffect;
@@ -49,7 +52,7 @@ public class Gun : Weapon
         isReloading = true;
         Debug.Log("Reloading...");
 
-        audioController?.PlaySound("reload");
+        audioController?.PlaySound(reloadSoundID);
 
         yield return new WaitForSeconds(ReloadTime);
 
@@ -61,7 +64,7 @@ public class Gun : Weapon
     {
         Uses--;
 
-        audioController?.PlaySound("shoot");
+        audioController?.PlaySound(shootSoundID);
 
         if (muzzleFlash != null)
             muzzleFlash.Play();
