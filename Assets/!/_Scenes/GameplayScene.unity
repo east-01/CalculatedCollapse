@@ -17624,6 +17624,7 @@ MonoBehaviour:
   camera: {fileID: 0}
   attachSettings: []
   isPaused: 0
+  MaxDamage: 100
 --- !u!114 &680219998695695000
 MonoBehaviour:
   m_ObjectHideFlags: 0

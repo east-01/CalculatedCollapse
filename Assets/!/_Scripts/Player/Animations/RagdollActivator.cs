@@ -8,10 +8,9 @@ public class RagdollActivator : MonoBehaviour
     void Awake()
     {
         animator = GetComponent<Animator>();
-        ragdollBodies = GetComponentsInChildren<Rigidbody>();
+        ragdollBodies = GetComponentsInChildren<Rigidbody>(true); // includeInactive: true
 
-        // disable ragdoll at start
-        SetRagdollState(false);
+        SetRagdollState(false); // disable ragdoll at start
     }
 
     public void ActivateRagdoll()
@@ -24,9 +23,14 @@ public class RagdollActivator : MonoBehaviour
     {
         foreach (var rb in ragdollBodies)
         {
-            rb.isKinematic = !enabled;
-            if (rb.GetComponent<Collider>())
-                rb.GetComponent<Collider>().enabled = enabled;
+            if (rb != null)
+            {
+                rb.gameObject.SetActive(enabled); // activate/deactivate child
+                rb.isKinematic = !enabled;
+
+                var col = rb.GetComponent<Collider>();
+                if (col) col.enabled = enabled;
+            }
         }
     }
 }

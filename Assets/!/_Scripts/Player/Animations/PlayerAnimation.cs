@@ -19,7 +19,7 @@ public class PlayerAnimation : MonoBehaviour
         ragdollActivator = GetComponent<RagdollActivator>();
         lastPosition = transform.position;
 
-        //PlayDeath(); // TEMP test
+        PlayDeath(); // TEMP test
 
         // subscribe to jump event
         playerMovement.OnJumpPerformed += HandleJumpAnimation;
