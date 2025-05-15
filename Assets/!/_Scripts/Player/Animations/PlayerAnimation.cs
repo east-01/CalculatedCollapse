@@ -48,9 +48,12 @@ public class PlayerAnimation : MonoBehaviour
 
         animator.SetFloat("MoveX", moveX);
         animator.SetFloat("MoveZ", moveZ);
-        animator.SetBool("IsRunning", playerMovement.sprintingInput);
         animator.SetBool("IsAiming", playerMovement.zoomInput);
-        animator.SetBool("IsCrouching", playerMovement.crouchInput);
+        animator.SetBool("IsCrouching", playerMovement.IsCrouching && !playerMovement.IsSliding);
+        animator.SetBool("IsSliding", playerMovement.IsSliding);
+
+        bool isRunning = playerMovement.sprintingInput && !playerMovement.IsCrouching && !playerMovement.IsSliding;
+        animator.SetBool("IsRunning", isRunning);
 
         lastPosition = transform.position;
     }
@@ -67,8 +70,7 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool("Jump", false);
     }
 
-    // death logic
-    public void PlayDeath()
+    public void PlayDeath() // death logic
     {
         var state = animator.GetCurrentAnimatorStateInfo(0);
         if (state.IsName("Standing_React_Death_Backward")) return;

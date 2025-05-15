@@ -80,6 +80,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     public float crouchTime = 0.25f;
     private float desiredCameraY;
     public float crouchViewOffset = -0.8f; // update camera height
+    public bool IsCrouching => isCrouching; // used by PlayerAnimation
     private Vector3 standCenter = new Vector3(0, 1f, 0);
     private Vector3 crouchCenter = new Vector3(0, 0.6f, 0);
 
@@ -111,7 +112,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     public float slideSpeed;
     public float slideDuration;
     private float slideTimer = 0f;
+    private bool slideReleased = true;
     private Vector3 slideDirection;
+    public bool IsSliding => isSliding; // accessed by playerAnimation
     public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
 
     // ------------------ CLIMBING ------------------
@@ -392,9 +395,13 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     // ------------------ CROUCHING ------------------
     private void HandleCrouch()
     {
-        if (crouchInput && sprintingInput && !isSliding && !isCrouching) // conditions to slide
+        if (!crouchInput || !sprintingInput) // reset slide trigger when inputs are released
+            slideReleased = true;
+
+        if (crouchInput && sprintingInput && !isSliding && !isCrouching && slideReleased) // trigger slide on fresh key press
         {
             StartSlide();
+            slideReleased = false; // block re-slide
             return;
         }
 
@@ -402,7 +409,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         if (targetCrouch != isCrouching)
         {
             isCrouching = targetCrouch;
-            desiredCameraY = isCrouching ? crouchViewOffset : 0f;
+
+            if (!isSliding) // dont override camera height during slide
+                desiredCameraY = isCrouching ? crouchViewOffset : 0f;
         }
     }
 
@@ -441,7 +450,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private void EndSlide()
     {
         isSliding = false;
-        isCrouching = false;
+        isCrouching = true;
         desiredCameraY = 0f;
 
         StartCoroutine(AdjustCrouch(standHeight, standCenter));
