@@ -215,8 +215,7 @@ MonoBehaviour:
   - {fileID: 5466939117642560368}
   - {fileID: -5452253555095639373}
   InitializedParentNetworkBehaviour: {fileID: 0}
-  InitializedNestedNetworkObjects:
-  - {fileID: 0}
+  InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
   _isNetworked: 1
@@ -239,7 +238,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 2
+  <PrefabId>k__BackingField: 1
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 3245580346695652904
   <SceneId>k__BackingField: 0
@@ -389,18 +388,12 @@ MonoBehaviour:
   sprintingInput: 0
   zoomInput: 0
   crouchInput: 0
-  cameraAttachPoint: {fileID: 4718917724592500}
-  playerCamera: {fileID: 1457892827986241266}
   walkSpeed: 6
   sprintSpeed: 12
   crouchSpeed: 3
   gravity: 30
-  crouchHeight: -0.8
-  standHeight: 0
-  crouchTime: 0.25
-  jumpForce: 8
-  zoomFOV: 40
-  zoomTime: 0.1
+  cameraAttachPoint: {fileID: 4718917724592500}
+  playerCamera: {fileID: 1457892827986241266}
   lookSpeedX: 2
   lookSpeedY: 2
   upperLookLimit: 80
@@ -411,6 +404,12 @@ MonoBehaviour:
   sprintBobAmount: 0.1
   crouchBobSpeed: 8
   crouchBobAmount: 0.025
+  zoomFOV: 40
+  zoomTime: 0.1
+  crouchHeight: -0.8
+  standHeight: 0
+  crouchTime: 0.25
+  jumpForce: 8
   maxLeanAngle: 16
   leanSpeed: 5
   leanOffsetDistance: 1
@@ -418,15 +417,6 @@ MonoBehaviour:
   dashForce: 30
   dashDuration: 0.2
   dashCooldown: 1
-  orientation: {fileID: 4898694727102280}
-  rb: {fileID: 6177337246575538918}
-  whatIsLadder:
-    serializedVersion: 2
-    m_Bits: 2048
-  climbSpeed: 10
-  detectionLength: 1.5
-  sphereCastRadius: 0.25
-  maxWallLookAngle: 30
   slideSpeed: 15
   slideDuration: 1
   slideCurve:
@@ -453,6 +443,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  climbSpeed: 10
+  detectionLength: 1.5
+  sphereCastRadius: 0.25
+  maxWallLookAngle: 30
   vaultLayerMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -461,6 +455,11 @@ MonoBehaviour:
   minVaultHeight: 1
   vaultDuration: 0.3
   vaultBufferTime: 0.2
+  orientation: {fileID: 4898694727102280}
+  rb: {fileID: 6177337246575538918}
+  whatIsLadder:
+    serializedVersion: 2
+    m_Bits: 2048
 --- !u!114 &6521357351895008424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -496,6 +495,16 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 6e7dfe8879160bd4985d00dd2e86ad0b, type: 3}
   - id: walk3
     audioClip: {fileID: 8300000, guid: b5f5b6c82b3b3164c9f4d0f907130d22, type: 3}
+  - id: land1
+    audioClip: {fileID: 8300000, guid: 55f1d382e6dca0944ae31e9adbfdc5e9, type: 3}
+  - id: land2
+    audioClip: {fileID: 8300000, guid: 1087b88a383154d4493e9d8aaa179d5a, type: 3}
+  - id: land3
+    audioClip: {fileID: 8300000, guid: 0b7c0cf8c6b3e8e4295d2776c5dab418, type: 3}
+  - id: dash
+    audioClip: {fileID: 8300000, guid: 1cbc7b00981b5a84694aa14c1ebe6e06, type: 3}
+  - id: slide
+    audioClip: {fileID: 8300000, guid: 434af739ddbf6294aa03ac54339ab2ca, type: 3}
 --- !u!143 &9139026534003978452
 CharacterController:
   m_ObjectHideFlags: 0
