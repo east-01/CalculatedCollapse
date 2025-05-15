@@ -2860,6 +2860,7 @@ MonoBehaviour:
   - land2
   - land3
   dashSoundID: dash
+  slideSoundID: slide
 --- !u!1 &374435850549019389
 GameObject:
   m_ObjectHideFlags: 0

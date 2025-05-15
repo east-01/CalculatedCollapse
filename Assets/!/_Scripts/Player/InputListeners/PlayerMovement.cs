@@ -71,7 +71,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     [Header("Zoom Settings")]
     public float zoomFOV = 40f;
     public float zoomTime = 0.1f;
-    private Coroutine zoomRoutine;
 
     // ------------------ CROUCH ------------------
     [Header("Crouch Settings")]
@@ -116,6 +115,16 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private Vector3 slideDirection;
     public bool IsSliding => isSliding; // accessed by playerAnimation
     public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
+
+    [Header("Slide Camera Pitch")]
+    public float slidePitchAngle = 4f;
+    public float slidePitchSpeed = 5f;
+    private float currentSlidePitch = 0f;
+
+    [Header("Slide FOV Boost")]
+    public float slideFOV = 75f;
+    public float slideFOVSpeed = 8f;
+    private float currentFOV;
 
     // ------------------ CLIMBING ------------------
     [Header("Climbing")]
@@ -175,9 +184,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleInput();    // taking inputs
         HandleMovement(); // executing movement
         HandleClimbing();
-        HandleZoom();
+        UpdateFOV();
         HandleHeadBob();
         HandleSlide();
+
+        float targetPitch = isSliding ? slidePitchAngle : 0f;
+        currentSlidePitch = Mathf.Lerp(currentSlidePitch, targetPitch, Time.deltaTime * slidePitchSpeed);
     }
 
     private void HandleInput()
@@ -284,7 +296,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         // otherwise, apply auto lean when sprinting and moving to the side
         else if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
         {
-            targetLean -= movementInput.x * (maxLeanAngle / 6); // dampen
+            targetLean -= movementInput.x * (maxLeanAngle / 10); // dampen
             targetOffsetX = movementInput.x * leanOffsetDistance * 0.5f;
         }
 
@@ -296,7 +308,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         cameraAttachPoint.localPosition = Vector3.Lerp(cameraAttachPoint.localPosition, targetPosition, Time.deltaTime * leanSpeed);
 
         // apply tilt
-        Quaternion targetRotation = Quaternion.Euler(rotationX, 0, currentLean);
+        Quaternion targetRotation = Quaternion.Euler(rotationX + currentSlidePitch, 0, currentLean);
         cameraAttachPoint.localRotation = targetRotation;
     }
 
@@ -315,12 +327,19 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         if (cameraAttachPoint != null) cameraAttachPoint.localPosition = new Vector3( cameraAttachPoint.localPosition.x, finalY, cameraAttachPoint.localPosition.z);
     }
 
-    private void HandleZoom()
+    private void UpdateFOV()
     {
-        if (zoomInput && zoomRoutine == null)
-            zoomRoutine = StartCoroutine(ToggleZoom(true));
-        else if (!zoomInput && zoomRoutine == null)
-            zoomRoutine = StartCoroutine(ToggleZoom(false));
+        float targetFOV;
+
+        if (isSliding)
+            targetFOV = slideFOV;
+        else if (zoomInput)
+            targetFOV = zoomFOV;
+        else
+            targetFOV = defaultFOV;
+        
+        currentFOV = Mathf.Lerp(currentFOV, targetFOV, Time.deltaTime * slideFOVSpeed);
+        playerCamera.fieldOfView = currentFOV;
     }
 
     private void UpdateCameraHeight()
@@ -418,6 +437,8 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     // ------------------ SLIDING ------------------
     private void StartSlide()
     {
+        currentFOV = slideFOV;
+
         isSliding = true;
         slideTimer = 0f;
         slideDirection = transform.forward;
@@ -425,9 +446,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         isCrouching = true;
         desiredCameraY = crouchViewOffset; // keep camera low while sliding
 
+
         StartCoroutine(AdjustCrouch(crouchHeight, crouchCenter)); // still needed for collider
 
-        GetComponentInChildren<PlayerAudio>()?.PlaySlideSound();
+        GetComponentInChildren<PlayerAudio>()?.PlaySlideSound(); // sound
     }
 
     private void HandleSlide()
@@ -517,23 +539,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         transform.position = targetPosition;
         characterController.enabled = true;
         isVaulting = false;
-    }
-
-    private IEnumerator ToggleZoom(bool zoomingIn)
-    {
-        float targetFOV = zoomingIn ? zoomFOV : defaultFOV;
-        float startFOV = playerCamera.fieldOfView;
-        float elapsed = 0f;
-
-        while (elapsed < zoomTime)
-        {
-            playerCamera.fieldOfView = Mathf.Lerp(startFOV, targetFOV, elapsed / zoomTime);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        playerCamera.fieldOfView = targetFOV;
-        zoomRoutine = null;
     }
 
     private IEnumerator AdjustCrouch(float targetHeight, Vector3 targetCenter)
