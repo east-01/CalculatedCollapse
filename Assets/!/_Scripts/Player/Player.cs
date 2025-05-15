@@ -48,6 +48,7 @@ public class Player : NetworkBehaviour, IS3, IDamageable
     private Dictionary<AttachBehaviour, List<Behaviour>> behaviourAttachSettings; 
 
     public bool isPaused = false;
+    public bool isDead = false;
 
 #region Initializers
     private void Awake()
@@ -102,6 +103,7 @@ public class Player : NetworkBehaviour, IS3, IDamageable
             pd.EnsureFPSData();
 
             float health = pd.GetData<InRoundData>().health;
+
             // bool shouldPause = health == 0;
             // if (isPaused != shouldPause)
             // {
@@ -112,7 +114,7 @@ public class Player : NetworkBehaviour, IS3, IDamageable
             playerModel.SetActive(health > 0);
         }
 
-        if (uid.Value != null && Input.GetKeyDown(KeyCode.K))
+        if (uid.Value != null && Input.GetKeyDown(KeyCode.K) && localPlayer != null)
         {
             PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
             pd.EnsureFPSData();
@@ -196,7 +198,7 @@ public class Player : NetworkBehaviour, IS3, IDamageable
     {
         Dictionary<AttachBehaviour, bool> states = new() {
             { AttachBehaviour.ACTIVE_ATTACHED, localPlayer != null },
-            { AttachBehaviour.ACTIVE_UNPAUSED, localPlayer != null && !isPaused },
+            { AttachBehaviour.ACTIVE_UNPAUSED, localPlayer != null && !isPaused},
             { AttachBehaviour.DISABLED_ATTACHED, localPlayer == null }
         };
 

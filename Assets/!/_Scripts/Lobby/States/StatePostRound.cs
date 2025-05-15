@@ -14,7 +14,7 @@ using UnityEngine.InputSystem.LowLevel;
 public class StatePostRound : LobbyState
 {
     /// <summary> The time for transitions </summary>
-    public readonly float POST_ROUND_TIME = 5f;
+    public readonly float POST_ROUND_TIME = 3;
 
     private string winner;
 

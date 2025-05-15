@@ -60,9 +60,8 @@ public class StateInRound : LobbyState
         foreach(string uid in gameLobby.Players) {
             PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
             InRoundData data = pd.GetData<InRoundData>();
-
-            if (data.health == 0)
-            {
+            
+            if (data.health <= 0) {
                 noHealths.Add(uid);
             }
         }
@@ -70,6 +69,9 @@ public class StateInRound : LobbyState
         if (noHealths.Count == 0)
             return null;
 
-        return noHealths[UnityEngine.Random.Range(0, noHealths.Count)];
+        string loser = noHealths[UnityEngine.Random.Range(0, noHealths.Count)];
+
+        string winner = gameLobby.Players.Except(new List<string>() { loser }).ToArray()[0];
+        return winner;
     }
 }

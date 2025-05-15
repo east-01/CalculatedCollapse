@@ -15,7 +15,7 @@ using UnityEngine;
 /// </summary>
 public class StatePrepareRound : LobbyState
 {
-    public static readonly float PREPARE_TIME = 30;
+    public static readonly float PREPARE_TIME = 3;
 
     public StatePrepareRound(GameLobby gameLobby) : base(gameLobby) 
     {
