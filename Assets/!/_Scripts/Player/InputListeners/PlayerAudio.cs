@@ -34,17 +34,17 @@ public class PlayerAudio : MonoBehaviour
     // called from animation event
     public void OnRunFootstep()
     {
-        PlayFootstep(runCooldown);
+        PlayFootstep(runCooldown, 1f);
     }
 
     // called from animation event
     public void OnWalkFootstep()
     {
-        PlayFootstep(walkCooldown);
+        PlayFootstep(walkCooldown, 0.5f);
     }
 
     [SerializeField] private string[] footstepIDs = { "walk1", "walk2", "walk3" };
-    private void PlayFootstep(float cooldown)
+    private void PlayFootstep(float cooldown, float volume)
     {
         if (characterController == null || audioController == null)
             return;
@@ -57,7 +57,7 @@ public class PlayerAudio : MonoBehaviour
         lastFootstepTime = Time.time;
 
         string chosenID = footstepIDs[Random.Range(0, footstepIDs.Length)];
-        audioController.PlaySound(chosenID);
+        audioController.PlaySound(chosenID, volume);
     }
 
     [SerializeField] private string[] landingIDs = { "land1", "land2", "land3" };
