@@ -51,8 +51,19 @@ public class GameplayManager : NetworkBehaviour
 
     private void Update()
     {
-        if (LobbyManager.Instance.LobbyData.HasValue && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StateInRound).ToString() && LobbyManager.Instance.LobbyData.Value.stateTypeString != typeof(StatePostRound).ToString())
-            ResetPlayerHealth();
+        // Kill all players
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Lobby.Players.ToList().ForEach(playerUID =>
+            {
+                PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(playerUID);
+                pd.EnsureFPSData();
+
+                InRoundData data = pd.GetData<InRoundData>();
+                data.health = 0f;
+                pd.SetData(data);
+            });
+        }
     }
 
     public Transform GetSpawnPosition(string uid) 

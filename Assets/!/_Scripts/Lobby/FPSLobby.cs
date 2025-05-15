@@ -31,12 +31,23 @@ public class FPSLobby : GameLobby
         LobbyManager.Instance.LobbyUpdatedEvent -= LobbyManager_LobbyUpdatedEvent;
     }
 
-    public override void Update() 
+    public override void Update()
     {
         base.Update();
 
-        if(GameplayScene is not null && GameplayManager == null)
+        if (GameplayScene is not null && GameplayManager == null)
             ConnectGameplayManager(GameplayScene);
+
+        if (GameplayManager == null)
+            return;
+            
+        List<string> resetHealthStates = new()
+        {
+            typeof(StatePrepareRound).ToString(),
+            typeof(StateWarmup).ToString()
+        };
+        if (LobbyManager.Instance.LobbyData.HasValue && resetHealthStates.Contains(LobbyManager.Instance.LobbyData.Value.stateTypeString))
+            GameplayManager.ResetPlayerHealth();
     }
 
     public override bool Joinable() => PlayerCount < REQUIRED_PLAYERS;

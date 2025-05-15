@@ -91,7 +91,10 @@ public class PlayerHUDMenuController : MenuController, IInputListener
         float timeLeft = GetTimeLeftInRound();
         timerText.text = timeLeft > 0 ? FormatTime((int)timeLeft) : "--";
 
-        dead.SetActive(data.health <= 0);
+        bool isDead = data.health <= 0;
+        if (dead.activeSelf != isDead)
+            BLog.Highlight($"Changing dead screen to: {isDead}");
+        dead.SetActive(isDead);
     }
 
     protected override void Opened()

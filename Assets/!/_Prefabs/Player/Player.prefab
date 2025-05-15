@@ -307,7 +307,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 1450876365604900663}
   uidReadout: 
   camera: {fileID: 1457892827986241266}
-  playerModel: {fileID: 1072008595159340}
+  playerModel: {fileID: 6910575209106470508}
   attachSettings:
   - obj: {fileID: 8554514546108795878}
     behaviour: 1

@@ -56,23 +56,20 @@ public class StateInRound : LobbyState
         if(TimeInState < MIN_ROUND_TIME)
             return null;
 
-        string winnerUID = null;
+        List<string> noHealths = new();
         foreach(string uid in gameLobby.Players) {
             PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
             InRoundData data = pd.GetData<InRoundData>();
 
-            // The player with >0 health is still standing and is the winner.
-            if(data.health > 0) {
-                if(winnerUID == null) {
-                    winnerUID = uid;
-                } else {
-                    // If we want to select a winner and there already is one, that means there is
-                    //   no current winner
-                    winnerUID = null;
-                    break;
-                }
+            if (data.health == 0)
+            {
+                noHealths.Add(uid);
             }
         }
-        return winnerUID;
+
+        if (noHealths.Count == 0)
+            return null;
+
+        return noHealths[UnityEngine.Random.Range(0, noHealths.Count)];
     }
 }

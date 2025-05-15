@@ -21,8 +21,6 @@ public class StatePostRound : LobbyState
     public StatePostRound(GameLobby gameLobby, string winner) : base(gameLobby) 
     {
         this.winner = winner;
-
-        (gameLobby as FPSLobby).GameplayManager.ResetPlayerHealth();
     }
 
     public override LobbyState CheckForStateChange()

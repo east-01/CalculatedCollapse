@@ -96,11 +96,30 @@ public class Player : NetworkBehaviour, IS3, IDamageable
             }
         }
 
-        if (uid.Value != null && PlayerDataRegistry.Instance.Contains(uid.Value))
+        if (uid.Value != null && PlayerDataRegistry.Instance.Contains(uid.Value) && localPlayer == null)
         {
             PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
             pd.EnsureFPSData();
-            playerModel.SetActive(pd.GetData<InRoundData>().health > 0);
+
+            float health = pd.GetData<InRoundData>().health;
+            // bool shouldPause = health == 0;
+            // if (isPaused != shouldPause)
+            // {
+            //     isPaused = shouldPause;
+            //     UpdateAttachBehaviours();
+            // }
+
+            playerModel.SetActive(health > 0);
+        }
+
+        if (uid.Value != null && Input.GetKeyDown(KeyCode.K))
+        {
+            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
+            pd.EnsureFPSData();
+
+            InRoundData ird = pd.GetData<InRoundData>();
+            ird.health = 0f;
+            pd.SetData(ird);
         }
 
     }
