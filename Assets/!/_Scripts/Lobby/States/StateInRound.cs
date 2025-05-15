@@ -15,17 +15,11 @@ using UnityEngine;
 /// </summary>
 public class StateInRound : LobbyState
 {
+    public static readonly float ROUND_TIME = 60*3;
+
     public StateInRound(GameLobby gameLobby) : base(gameLobby) 
     {
-        SpawnPlayers();
-
-        // Reset the walls
-        WallInteraction.ResetAllWalls();
-        // WallInteraction.LockAllWalls();
-
-        GameObject startingWall = GameObject.FindWithTag("Starting Wall");
-        GameObject.Destroy(startingWall); 
-
+        WallInteraction.LockAllWalls();
     }
 
     public override LobbyState CheckForStateChange()
@@ -50,35 +44,6 @@ public class StateInRound : LobbyState
         pd.SetData(data);
 
         return new StatePostRound(gameLobby, winnerUID);
-    }
-
-    private void SpawnPlayers() 
-    {
-        FPSLobby lobby = gameLobby as FPSLobby;
-        GameplayManager gm = lobby.GameplayManager;
-        PlayerObjectManager pom = gm.GetComponent<PlayerObjectManager>();
-
-        foreach(string uid in lobby.Players) 
-        {
-            Player player = pom.GetPlayer(uid);
-            if(player == null) {
-                // Debug.LogWarning("Can't spawn player player is null");
-                continue;
-            }
-            
-            Transform pos = gm.GetSpawnPosition(uid);
-
-            PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid);
-            NetworkIdentifierData nid = pd.GetData<NetworkIdentifierData>();
-            NetworkConnection conn = nid.GetNetworkConnection();
-
-            if(InstanceFinder.ClientManager.Connection.IsValid && InstanceFinder.ClientManager.Connection == conn) {
-                // We don't need to send a TargetRPC to this player, they're the host
-                player.SetPositionAndRotation(pos.position, pos.rotation);
-            } else {
-                player.TargetRPCSetPositionAndRotation(conn, pos.position, pos.rotation);
-            }
-        }
     }
 
     private string FindWinnerUID() 

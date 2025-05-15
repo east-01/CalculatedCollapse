@@ -49,6 +49,6 @@ public class StatePostRound : LobbyState
 
             return new StateUnloadScene(gameLobby);
         } else
-            return new StateInRound(gameLobby);
+            return new StatePrepareRound(gameLobby);
     }
 }

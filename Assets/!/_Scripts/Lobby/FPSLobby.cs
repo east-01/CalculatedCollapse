@@ -11,7 +11,7 @@ using UnityEngine;
 
 public class FPSLobby : GameLobby 
 {
-    public static readonly int WINS_PER_MAP = 1;
+    public static readonly int WINS_PER_MAP = 3;
     public static readonly int REQUIRED_PLAYERS = 2;
 
     public GameplayManager GameplayManager { get; private set; }

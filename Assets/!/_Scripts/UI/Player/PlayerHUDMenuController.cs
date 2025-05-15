@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,8 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     [SerializeField]
     private GameObject scoreboard;
     [SerializeField]
+    private TMP_Text timerText;
+    [SerializeField]
     private TMP_Text winText;
     [SerializeField]
     private TMP_Text oppWinText;
@@ -35,6 +38,7 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     private Crosshair crosshair;
 
     private Player player;
+    private float lobbyUpdateTime;
 
     protected new void Awake()
     {
@@ -45,6 +49,13 @@ public class PlayerHUDMenuController : MenuController, IInputListener
             Debug.LogError("Failed to get player in parent. It is assumed that the PlayerHUDMenuController is on a canvas that's a child of a Player GameObject.");
             return;
         }
+
+        LobbyManager.Instance.LobbyUpdatedEvent += LobbyManager_LobbyUpdatedEvent;
+    }
+
+    protected new void OnDestroy() 
+    {
+
     }
 
     private void Update()
@@ -72,6 +83,9 @@ public class PlayerHUDMenuController : MenuController, IInputListener
         healthBar.Value = data.health;
         winText.text = data.wins.ToString();
         oppWinText.text = GetOppWins();
+
+        float timeLeft = GetTimeLeftInRound();
+        timerText.text = timeLeft > 0 ? FormatTime((int)timeLeft) : "--";
 
         if(Input.GetKeyDown(KeyCode.H))
             crosshair.ShowHitmarker();
@@ -124,7 +138,7 @@ public class PlayerHUDMenuController : MenuController, IInputListener
         if(stateString == typeof(StateWarmup).ToString()) {
             healthBar.gameObject.SetActive(false);
             scoreboard.SetActive(false);
-        } else if(stateString == typeof(StateInRound).ToString()) {
+        } else if(stateString == typeof(StateInRound).ToString() || stateString == typeof(StatePrepareRound).ToString()) {
             healthBar.gameObject.SetActive(true);
             scoreboard.SetActive(true);
         } else if(stateString == typeof(StatePostRound).ToString()) {
@@ -182,4 +196,32 @@ public class PlayerHUDMenuController : MenuController, IInputListener
     }
 
     public void InputPoll(InputAction action) {}
+
+    private float GetTimeLeftInRound() 
+    {
+        LobbyData? dataNullable = LobbyManager.Instance.LobbyData;
+        if(!dataNullable.HasValue)
+            return -1;
+        LobbyData data = dataNullable.Value;
+
+        if(data.stateTypeString != typeof(StatePrepareRound).ToString() && data.stateTypeString != typeof(StateInRound).ToString())
+            return -1;
+
+        float roundTime = data.stateTypeString == typeof(StatePrepareRound).ToString() ? StatePrepareRound.PREPARE_TIME : StateInRound.ROUND_TIME;
+
+        return roundTime - (Time.time-(lobbyUpdateTime + data.timeInState));
+    }
+
+    public static string FormatTime(int totalSeconds)
+    {
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return $"{minutes:D2}:{seconds:D2}";
+    }
+
+    private void LobbyManager_LobbyUpdatedEvent(string lobbyID, LobbyData newData, LobbyUpdateReason reason)
+    {
+        lobbyUpdateTime = Time.time;
+    }
+
 }

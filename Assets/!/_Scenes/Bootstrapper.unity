@@ -873,6 +873,22 @@ PrefabInstance:
       propertyPath: _loginHandler
       value: 
       objectReference: {fileID: 2113718922}
+    - target: {fileID: 8196187498534764713, guid: 7ba9b827b8ee3ee468392a72dd83cd09, type: 3}
+      propertyPath: mutabilityMetadata.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196187498534764713, guid: 7ba9b827b8ee3ee468392a72dd83cd09, type: 3}
+      propertyPath: visibilityMetadata.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196187498534764713, guid: 7ba9b827b8ee3ee468392a72dd83cd09, type: 3}
+      propertyPath: mutabilityMetadata.Array.data[0].typeName
+      value: InRoundData
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196187498534764713, guid: 7ba9b827b8ee3ee468392a72dd83cd09, type: 3}
+      propertyPath: visibilityMetadata.Array.data[0].typeName
+      value: InRoundData
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ba9b827b8ee3ee468392a72dd83cd09, type: 3}
 --- !u!1 &2113718921 stripped

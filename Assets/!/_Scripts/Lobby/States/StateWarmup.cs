@@ -25,6 +25,6 @@ public class StateWarmup : LobbyState
         if(TimeInState < WARMUP_TIME)
             return null;
 
-        return new StateInRound(gameLobby);
+        return new StatePrepareRound(gameLobby);
     }
 }

@@ -31,10 +31,22 @@ public class GameplayManager : NetworkBehaviour
     private Dictionary<string, int> spawnPosAssignments = new();
 
     public FPSLobby Lobby;
+    private GameObject startingWall;
+
+    private void Awake()
+    {
+        LobbyManager.Instance.LobbyUpdatedEvent += LobbyManager_LobbyUpdatedEvent;
+    }
+
+    private void OnDestroy()
+    {
+        LobbyManager.Instance.LobbyUpdatedEvent -= LobbyManager_LobbyUpdatedEvent;
+    }
 
     private void Start() 
     {
         SceneSingletons.Register(this);
+        startingWall = GameObject.FindWithTag("Starting Wall");
     }
 
     private void Update() 
@@ -71,6 +83,15 @@ public class GameplayManager : NetworkBehaviour
         }
 
         return -1;
+    }
+
+    private void LobbyManager_LobbyUpdatedEvent(string lobbyID, LobbyData newData, LobbyUpdateReason reason)
+    {
+        if(newData.stateTypeString == typeof(StatePrepareRound).ToString()) {
+            startingWall.SetActive(true);
+        } else if(newData.stateTypeString == typeof(StateInRound).ToString()) {
+            startingWall.SetActive(false);
+        }
     }
 
 }

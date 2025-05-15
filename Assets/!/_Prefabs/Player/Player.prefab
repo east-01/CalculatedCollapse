@@ -216,7 +216,7 @@ MonoBehaviour:
   - {fileID: -5452253555095639373}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects:
-  - {fileID: 7045528853463924211}
+  - {fileID: 0}
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
   _isNetworked: 1
@@ -355,12 +355,6 @@ MonoBehaviour:
     pollInput: 1
   - actionName: Zoom
     listener: {fileID: 8554514546108795878}
-    pollInput: 1
-  - actionName: Fire
-    listener: {fileID: 0}
-    pollInput: 1
-  - actionName: Reload
-    listener: {fileID: 0}
     pollInput: 1
   - actionName: Dash
     listener: {fileID: 8554514546108795878}
@@ -912,7 +906,7 @@ PrefabInstance:
     - target: {fileID: 3274474085627632481, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: NetworkBehaviours.Array.data[2]
       value: 
-      objectReference: {fileID: 8709840814780103855}
+      objectReference: {fileID: 0}
     - target: {fileID: 3274474085627632481, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: InitializedParentNetworkBehaviour
       value: 
@@ -940,7 +934,7 @@ PrefabInstance:
     - target: {fileID: 3776384759251294781, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _networkObjectCache
       value: 
-      objectReference: {fileID: 7045528853463924211}
+      objectReference: {fileID: 0}
     - target: {fileID: 3776384759251294781, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _componentIndexCache
       value: 2
@@ -956,7 +950,7 @@ PrefabInstance:
     - target: {fileID: 4153083230826526058, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _networkObjectCache
       value: 
-      objectReference: {fileID: 7045528853463924211}
+      objectReference: {fileID: 0}
     - target: {fileID: 4153083230826526058, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _componentIndexCache
       value: 1
@@ -992,7 +986,7 @@ PrefabInstance:
     - target: {fileID: 5475949206694357922, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _networkObjectCache
       value: 
-      objectReference: {fileID: 7045528853463924211}
+      objectReference: {fileID: 0}
     - target: {fileID: 5475949206694357922, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
       propertyPath: _componentIndexCache
       value: 0
@@ -1129,17 +1123,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 155d1fe456343134991ae32ae7369829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7045528853463924211 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3274474085627632481, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
-  m_PrefabInstance: {fileID: 5528164132361463442}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &7601814230229611789 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2722683505282487199, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
@@ -1160,17 +1143,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8ee4fc5b9324d64788be5223f342825, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &8709840814780103855 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3776384759251294781, guid: f96404457e7488943ab600bfb8b34f59, type: 3}
-  m_PrefabInstance: {fileID: 5528164132361463442}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d973321a17007be4d889261b575952ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &6545147416906839185
