@@ -172,13 +172,13 @@ public class Player : NetworkBehaviour, IS3, IDamageable
         foreach(AttachBehaviour behaviour in states.Keys) {
             if(gameObjectAttachSettings.ContainsKey(behaviour)) {
                 foreach(GameObject go in gameObjectAttachSettings[behaviour]) {
-                    go.SetActive(states[behaviour]);                    
+                    go.SetActive(states[behaviour]);
                 }
             }
 
             if(behaviourAttachSettings.ContainsKey(behaviour)) {
                 foreach(Behaviour beh in behaviourAttachSettings[behaviour]) {
-                    beh.enabled = states[behaviour];                    
+                    beh.enabled = states[behaviour];
                 }
             }
         }
@@ -193,7 +193,7 @@ public class Player : NetworkBehaviour, IS3, IDamageable
     }
 
     [Serializable]
-    public struct AttachSetting 
+    public struct AttachSetting
     {
         public UnityEngine.Object obj;
         public AttachBehaviour behaviour;
@@ -233,12 +233,5 @@ public class Player : NetworkBehaviour, IS3, IDamageable
         InRoundData ird = pd.GetData<InRoundData>();
         ird.health = Mathf.Clamp01(ird.health - damage01);
         pd.SetData(ird);
-
-        HealthBar hb = GetComponent<HealthBar>();
-        if (hb != null)
-            hb.Value = ird.health;
-
-        if (!ird.IsAlive)
-            Debug.Log($"{uid.Value} has died.");
     }
 }

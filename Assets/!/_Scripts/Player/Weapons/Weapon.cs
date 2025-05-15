@@ -1,7 +1,7 @@
 using UnityEngine;
 using FishNet.Object;
 
-public class Weapon : NetworkBehaviour
+public class Weapon : MonoBehaviour
 {
     public int MaxUses = 10;
     public float ReloadTime = 1f;
@@ -11,7 +11,6 @@ public class Weapon : NetworkBehaviour
 
     public int Uses { get; protected set; }
 
-    [ServerRpc]
     protected void Cmd_DealDamage(NetworkObject target, float damage)
     {
         IDamageable damageable = target.GetComponent<IDamageable>();

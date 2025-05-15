@@ -22,7 +22,6 @@ public class Gun : Weapon
 
     void Update()
     {
-        if (!IsOwner) return;
 
         // If out of ammo, reload and return early
         if (Uses <= 0)
@@ -71,7 +70,7 @@ public class Gun : Weapon
 
             if (damageable != null && targetNetObj != null)
             {
-                Cmd_DealDamage(targetNetObj, damage); 
+                Cmd_DealDamage(targetNetObj, damage);
             }
 
             if (impactEffect != null)
