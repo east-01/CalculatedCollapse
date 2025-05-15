@@ -1,7 +1,7 @@
 using EMullen.PlayerMgmt;
 using FishNet.Managing.Statistic;
 
-class FPSPlayerData : PlayerDataClass 
+class FPSPlayerData : PlayerDataClass
 {
     public string displayName;
     public int wins;
@@ -9,7 +9,7 @@ class FPSPlayerData : PlayerDataClass
     // Constructor for JSON deserialization
     public FPSPlayerData() {}
 
-    public FPSPlayerData(string displayName, int wins) 
+    public FPSPlayerData(string displayName, int wins)
     {
         this.displayName = displayName;
         this.wins = wins;

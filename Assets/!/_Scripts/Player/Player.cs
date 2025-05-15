@@ -14,7 +14,7 @@ using UnityEngine;
 ///   ConnectPlayer() call when the PlayerManager sends a LocalPlayer.
 /// </summary>
 [RequireComponent(typeof(PlayerInputManager))]
-public class Player : NetworkBehaviour, IS3
+public class Player : NetworkBehaviour, IS3, IDamageable
 {
     public readonly SyncVar<string> uid = new();
 #if UNITY_EDITOR
@@ -172,13 +172,13 @@ public class Player : NetworkBehaviour, IS3
         foreach(AttachBehaviour behaviour in states.Keys) {
             if(gameObjectAttachSettings.ContainsKey(behaviour)) {
                 foreach(GameObject go in gameObjectAttachSettings[behaviour]) {
-                    go.SetActive(states[behaviour]);                    
+                    go.SetActive(states[behaviour]);
                 }
             }
 
             if(behaviourAttachSettings.ContainsKey(behaviour)) {
                 foreach(Behaviour beh in behaviourAttachSettings[behaviour]) {
-                    beh.enabled = states[behaviour];                    
+                    beh.enabled = states[behaviour];
                 }
             }
         }
@@ -193,7 +193,7 @@ public class Player : NetworkBehaviour, IS3
     }
 
     [Serializable]
-    public struct AttachSetting 
+    public struct AttachSetting
     {
         public UnityEngine.Object obj;
         public AttachBehaviour behaviour;
@@ -224,4 +224,14 @@ public class Player : NetworkBehaviour, IS3
     /// <param name="rotation">The target rotation.</param>
     [TargetRpc]
     public void TargetRPCSetPositionAndRotation(NetworkConnection connection, Vector3 position, Quaternion rotation) => SetPositionAndRotation(position, rotation);
+    public float MaxDamage = 100f;
+    public void TakeDamage(float damage)
+    {
+        float damage01 = damage / MaxDamage;
+
+        PlayerData pd = PlayerDataRegistry.Instance.GetPlayerData(uid.Value);
+        InRoundData ird = pd.GetData<InRoundData>();
+        ird.health = Mathf.Clamp01(ird.health - damage01);
+        pd.SetData(ird);
+    }
 }

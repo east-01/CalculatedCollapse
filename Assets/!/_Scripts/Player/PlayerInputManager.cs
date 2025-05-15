@@ -28,7 +28,7 @@ public class PlayerInputManager : MonoBehaviour
     private Dictionary<string, List<IInputListener>> listeners = new();
     private Dictionary<string, List<IInputListener>> pollingListeners = new();
 
-    private void Awake() 
+    private void Awake()
     {
         inputListeners.ForEach(listItem => {
             if(listItem.listener is not IInputListener) {

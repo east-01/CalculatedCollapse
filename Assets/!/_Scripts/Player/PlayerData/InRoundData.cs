@@ -9,7 +9,7 @@ public class InRoundData : PlayerDataClass
 
     public InRoundData() {}
 
-    public InRoundData(float health, int wins, string gun) 
+    public InRoundData(float health, int wins, string gun)
     {
         this.health = health;
         this.wins = wins;
