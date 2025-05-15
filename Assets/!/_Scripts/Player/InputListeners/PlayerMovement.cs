@@ -341,7 +341,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
 
     private void HandleHeadBob()
     {
-        if (!characterController.isGrounded) return;
+        if (!characterController.isGrounded || isSliding || isDashing) return;
         if (movementInput == Vector2.zero) return;
 
         bobTimer += Time.deltaTime * (isCrouching ? crouchBobSpeed : sprintingInput ? sprintBobSpeed : walkBobSpeed);
