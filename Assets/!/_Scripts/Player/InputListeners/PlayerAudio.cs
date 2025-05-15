@@ -79,4 +79,11 @@ public class PlayerAudio : MonoBehaviour
         if (audioController != null)
             audioController.PlaySound(dashSoundID, 0.4f);
     }
+
+    [SerializeField] private string slideSoundID = "slide";
+    public void PlaySlideSound()
+    {
+        if (audioController != null)
+            audioController.PlaySound(slideSoundID, 0.4f);
+    }
 }

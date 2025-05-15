@@ -8,93 +8,111 @@ using System;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour, IInputListener
 {
-    //Audio Manager
-   // private AudioManager audioManager;
-
+    // ------------------ COMPONENTS ------------------
     private NetworkedAudioController audioController;
     private CharacterController characterController;
 
-    public event Action OnJumpPerformed; // event is invoked when jumping
-
-    // Input values
+    // ------------------ INPUT FLAGS ------------------
     public bool sprintingInput;  // accessed by player animation (running)
     public bool zoomInput;       // accessed by player animation (aiming)
     public bool crouchInput;     // accessed by player animation (crouching)
-    private bool jumpInput;      // 
-    private Vector2 movementInput;
+    private bool jumpInput;
     private bool dashInput;
     private bool leanLeftInput;
     private bool leanRightInput;
+    private Vector2 movementInput;
 
-    [Header("Camera")]
-    [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
-    [SerializeField] private Camera playerCamera; // Actual camera (used for zoom/FOV)
-    private float defaultFOV;
+    // ------------------ PLAYER STATE ------------------
+    private bool isCrouching = false;
+    private bool crouchAnimating = false;
+    private bool isDashing = false;
+    private bool isSliding = false;
+    private bool wasAirborne = false;
+    private bool jumpedFromGround;
+    private bool isVaulting = false;
+    private bool nearVaultable = false;
+    private bool climbing;
 
+    // ------------------ MOVEMENT ------------------
     [Header("Movement Settings")]
     public float walkSpeed = 3f;
     public float sprintSpeed = 6f;
     public float crouchSpeed = 1.5f;
     public float gravity = 30f;
-
-    [Header("Crouch Settings")]
-    public float crouchHeight = -0.8f;
-    public float standHeight = 0f;
-    public float crouchTime = 0.25f;
-    private bool isCrouching = false;
-    private bool crouchAnimating = false;
-    private Vector3 crouchCenter = new Vector3(0, 0.5f, 0);
-    private Vector3 standCenter = new Vector3(0, 0, 0);
-
-    [Header("Jump Settings")]
-    public float jumpForce = 10f;
+    private Vector3 moveDirection;
+    private Vector2 currentInput;
     private float verticalVelocity;
-    private bool lastJump;
+
+    // ------------------ CAMERA ------------------
+    [Header("Camera")]
+    [SerializeField] private Transform cameraAttachPoint; // Camera bob + pitch
+    [SerializeField] private Camera playerCamera;         // Actual camera (used for zoom/FOV)
+    private float defaultFOV;
+    private float defaultYPos;
+    private float rotationX = 0f;
+    private Vector3 defaultCamLocalPos;
+
+    // ------------------ CAMERA SETTINGS ------------------
+    [Header("Camera Look")]
+    public float lookSpeedX = 2f;
+    public float lookSpeedY = 2f;
+    public float upperLookLimit = 80f;
+    public float lowerLookLimit = 80f;
+
+    [Header("Head Bob Settings")]
+    public float walkBobSpeed = 10f;
+    public float walkBobAmount = 0.05f;
+    public float sprintBobSpeed = 14f;
+    public float sprintBobAmount = 0.1f;
+    public float crouchBobSpeed = 8f;
+    public float crouchBobAmount = 0.025f;
+    private float bobTimer;
 
     [Header("Zoom Settings")]
     public float zoomFOV = 40f;
     public float zoomTime = 0.1f;
     private Coroutine zoomRoutine;
 
-    [Header("Camera Look")]
-    public float lookSpeedX = 2f;
-    public float lookSpeedY = 2f;
-    public float upperLookLimit = 80f;
-    public float lowerLookLimit = 80f;
-    private float rotationX = 0f;
+    // ------------------ CROUCH ------------------
+    [Header("Crouch Settings")]
+    public float crouchHeight = -0.8f;
+    public float standHeight = 0f;
+    public float crouchTime = 0.25f;
+    private Vector3 crouchCenter = new Vector3(0, 0.5f, 0);
+    private Vector3 standCenter = new Vector3(0, 0, 0);
 
-    [Header("Head Bob Settings")]
-    public float walkBobSpeed = 14f;
-    public float walkBobAmount = 0.05f;
-    public float sprintBobSpeed = 18f;
-    public float sprintBobAmount = 0.1f;
-    public float crouchBobSpeed = 8f;
-    public float crouchBobAmount = 0.025f;
-    private float defaultYPos;
-    private float bobTimer;
+    // ------------------ JUMP ------------------
+    [Header("Jump Settings")]
+    public float jumpForce = 10f;
+    private float fallStartY;
+    private float minFallDistance = 1f;
+    public event Action OnJumpPerformed; // event is invoked when jumping
 
+    // ------------------ LEAN ------------------
     [Header("Player Lean Settings")]
     public float maxLeanAngle = 10f;
     public float leanSpeed = 5f;
-    public float leanOffsetDistance = 1f; // how far the camera shifts when leaning
-    private Vector3 defaultCamLocalPos;
+    public float leanOffsetDistance = 1f;
     private float currentLean = 0f;
 
+    // ------------------ DASH ------------------
     [Header("Dash Settings")]
-    public int maxDashes = 3;           // replenished with power ups - TODO: tune later
+    public int maxDashes = 3;
     public float dashForce = 30f;
     public float dashDuration = 0.2f;
-    public float dashCooldown = 1f;     // cooldown to prevent spam
+    public float dashCooldown = 1f;
     private int currentDashes;
-    private bool isDashing = false;
     private float lastDashTime;
 
-    /* climbing system by Dave / GameDevelopment on YT */
-    [Header("References")]
-    public Transform orientation;
-    public Rigidbody rb;
-    public LayerMask whatIsLadder;
+    // ------------------ SLIDING ------------------
+    [Header("Sliding")]
+    public float slideSpeed;
+    public float slideDuration;
+    private float slideTimer = 0f;
+    private Vector3 slideDirection;
+    public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
 
+    // ------------------ CLIMBING ------------------
     [Header("Climbing")]
     public float climbSpeed;
     public float detectionLength;
@@ -103,31 +121,22 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private float wallLookAngle;
     private RaycastHit frontWallHit;
     private bool wallFront;
-    private bool climbing;
 
-    [Header("Sliding")]
-    public float slideSpeed;
-    public float slideDuration;
-    private bool isSliding = false;
-    private float slideTimer = 0f;
-    private Vector3 slideDirection;
-    public AnimationCurve slideCurve = AnimationCurve.EaseInOut(0, 100, 100, 0);
-
+    // ------------------ VAULTING ------------------
     [Header("Vaulting")]
     public LayerMask vaultLayerMask;
     public float vaultCheckDistance = 1.5f;
     public float maxVaultHeight = 3f;
     public float minVaultHeight = 1f;
     public float vaultDuration = 0.3f;
-    private bool isVaulting = false;
-    private bool nearVaultable = false;
     private Vector3 vaultTargetPosition;
-    // vaulting buffer for midair vaults and early jump input
     public float vaultBufferTime = 0.2f;
     private float lastJumpPressTime;
 
-    private Vector3 moveDirection;
-    private Vector2 currentInput;
+    [Header("References")]
+    public Transform orientation;
+    public Rigidbody rb;
+    public LayerMask whatIsLadder;
 
     private void Awake()
     {
@@ -164,7 +173,6 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         HandleHeadBob();
         HandleSlide();
         CheckForVaultable();
-        lastJump = jumpInput;
     }
 
     private void HandleInput()
@@ -201,6 +209,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         else if (climbing)
         {
             climbing = false;
+
+            // start fall tracking when climbing ends
+            wasAirborne = true;
+            fallStartY = transform.position.y;
         }
     }
 
@@ -236,7 +248,7 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         // otherwise, apply auto lean when sprinting and moving to the side
         else if (sprintingInput && Mathf.Abs(movementInput.x) > 0.1f)
         {
-            targetLean -= movementInput.x * (maxLeanAngle / 4); // dampen
+            targetLean -= movementInput.x * (maxLeanAngle / 6); // dampen
             targetOffsetX = movementInput.x * leanOffsetDistance * 0.5f;
         }
 
@@ -262,10 +274,12 @@ public class PlayerMovement : MonoBehaviour, IInputListener
     private void HandleGravityAndJumping()
     {
         bool wantsToVault = jumpInput || (Time.time - lastJumpPressTime <= vaultBufferTime);
+        bool grounded = characterController.isGrounded;
 
-        if (characterController.isGrounded)
+        if (grounded)
         {
             verticalVelocity = -1f;
+
             if (wantsToVault)
             {
                 bool didVault = false;
@@ -273,7 +287,10 @@ public class PlayerMovement : MonoBehaviour, IInputListener
                     didVault = TryVault();
 
                 if (!didVault && !isVaulting)
+                {
                     verticalVelocity = jumpForce;
+                    jumpedFromGround = true; // mark jump, but don't track fall yet
+                }
             }
         }
         else // in air
@@ -285,27 +302,55 @@ public class PlayerMovement : MonoBehaviour, IInputListener
             if (wantsToVault && !isVaulting)
                 TryVault();
         }
+
+        if (!grounded && !wasAirborne)
+        {
+            wasAirborne = true; // we just left the ground
+            fallStartY = transform.position.y; // capture height
+        }
+        if (grounded && wasAirborne)
+        {
+            wasAirborne = false; // we just landed
+
+            // check distance fallen
+            float fallDistance = fallStartY - transform.position.y;
+            if (fallDistance > minFallDistance || jumpedFromGround)
+            {
+                GetComponentInChildren<PlayerAudio>()?.PlayLandingSound();
+            }
+
+            jumpedFromGround = false;
+        }
     }
 
     private void HandleCrouch()
     {
         if (crouchAnimating) return;
-        
-        // Check for a slide
-        if (crouchInput && sprintingInput && !isSliding && !isCrouching)
+        if (crouchInput && sprintingInput && !isSliding && !isCrouching) { StartSlide(); return; }
+        if (isCrouching != crouchInput) StartCoroutine(AnimateCameraCrouch(crouchInput));
+
+        isCrouching = crouchInput;
+    }
+
+    private IEnumerator AnimateCameraCrouch(bool crouching)
+    {
+        crouchAnimating = true;
+        float elapsed = 0f;
+        float duration = crouchTime;
+
+        Vector3 startPos = cameraAttachPoint.localPosition;
+        float targetY = crouching ? defaultYPos + crouchHeight : defaultYPos;
+        Vector3 targetPos = new Vector3(startPos.x, targetY, startPos.z);
+
+        while (elapsed < duration)
         {
-            StartSlide();
-            return;
+            cameraAttachPoint.localPosition = Vector3.Lerp(startPos, targetPos, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
         }
 
-
-        float targetHeight = isCrouching ? crouchHeight : standHeight;
-        Vector3 targetCenter = isCrouching ? crouchCenter : standCenter;
-
-        if (characterController.height != targetHeight)
-            StartCoroutine(AdjustCrouch(targetHeight, targetCenter));
-
-        isCrouching = crouchInput; // continuously reflects current input (hold-to-crouch)
+        cameraAttachPoint.localPosition = targetPos;
+        crouchAnimating = false;
     }
 
     // Method to handle the sliding
@@ -331,10 +376,11 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         isSliding = true;
         slideTimer = 0f;
         slideDirection = transform.forward;
-        //AudioManager.Instance.PlaySound(AudioManager.Instance.slide);
 
         isCrouching = true;
         StartCoroutine(AdjustCrouch(crouchHeight, crouchCenter));
+
+        GetComponentInChildren<PlayerAudio>()?.PlaySlideSound();
     }
 
     // animate crouching animation
@@ -474,6 +520,9 @@ public class PlayerMovement : MonoBehaviour, IInputListener
         isDashing = true;
         currentDashes--;
         lastDashTime = Time.time;
+
+        // play dash sound
+        GetComponentInChildren<PlayerAudio>()?.PlayDashSound();
 
         Vector3 dashDirection = moveDirection.normalized;
         if (dashDirection == Vector3.zero) // handle case where dash received but no movement direction
