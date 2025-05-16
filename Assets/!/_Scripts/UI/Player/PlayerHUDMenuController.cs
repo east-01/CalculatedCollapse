@@ -17,7 +17,6 @@ using UnityEngine.InputSystem;
 public class PlayerHUDMenuController : MenuController, IInputListener
 {
 
-    public static readonly string SUB_MENU_ACTIVE = "active";
     public static readonly string SUB_MENU_PAUSE = "pause";
 
     [SerializeField]
@@ -92,8 +91,6 @@ public class PlayerHUDMenuController : MenuController, IInputListener
         timerText.text = timeLeft > 0 ? FormatTime((int)timeLeft) : "--";
 
         bool isDead = data.health <= 0;
-        if (dead.activeSelf != isDead)
-            BLog.Highlight($"Changing dead screen to: {isDead}");
         dead.SetActive(isDead);
     }
 
